@@ -9,10 +9,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.math.filter.LinearFilter;
 import frc.robot.Robot;
-import frc.robot.RobotContainer;
+import frc.robot.RobotSubsystems;
 import frc.robot.drivetrain.SwerveModule;
 import frc.robot.control.JoystickDriver;
 
+//TODO Add velocity provider
 public class SwerveDrivetrain extends SubsystemBase {
     private final double WIDTH = 11.2; // Inches? TODO Add dimensions
     private final double HEIGHT = 10.5; //
@@ -28,7 +29,7 @@ public class SwerveDrivetrain extends SubsystemBase {
     private Translation2d combinedTranslation = new Translation2d(0, 0);
     private double combinedRZ = 0;
 
-    private RobotContainer rbt;
+    private RobotSubsystems rbt;
 
     private SwerveDriveKinematics kinematics = new SwerveDriveKinematics(
             new Translation2d(WIDTH, HEIGHT),

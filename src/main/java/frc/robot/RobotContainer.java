@@ -4,14 +4,11 @@
 
 package frc.robot;
 
-import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.MPU9250_ESP32.MPU9250_ESP32;
-import frc.robot.arm.ArmControl;
 import frc.robot.control.JoystickDriver;
 import frc.robot.drivetrain.SwerveDrivetrain;
 
+//TODO Dynamic subsystem type registration and retrieval
 public class RobotContainer {
 	public SwerveDrivetrain drivetrain;
 	public JoystickDriver joystick;
