@@ -2,16 +2,15 @@ package frc.robot.control;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
 import frc.robot.Robot;
 import frc.robot.RobotContainer;
 import frc.robot.drivetrain.SwerveDrivetrain;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
+//TODO Multiple joystick support by registering independent joysticks
 public class JoystickDriver extends SubsystemBase {
     private Joystick joystick = new Joystick(0);
     //private Joystick joystick_2 = new Joystick(1);
