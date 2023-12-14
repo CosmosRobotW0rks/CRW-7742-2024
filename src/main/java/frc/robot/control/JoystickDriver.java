@@ -21,22 +21,13 @@ public class JoystickDriver extends SubsystemBase {
     public JoystickDriver() {
         r = Robot.c;
         drivetrain = r.drivetrain;
-        // new JoystickButton(joystick, 1).whenPressed(new ShootCommand(shooter, 27,
-        // 8.5));
-        // new JoystickButton(joystick, 6).whenPressed(lookCMD);
     }
 
     @Override
     public void periodic() {
-        double xSpeed = -joystick.getRawAxis(1) / 1;// + -joystick_2.getRawAxis(1) / 2;
-        double ySpeed = joystick.getRawAxis(0) / 1;// + joystick_2.getRawAxis(0) / 2;
-        double rot = joystick.getRawAxis(4) / 6; //+;//  + joystick_2.getRawAxis(2) / 12;
-
-        /*if (joystick_2.getRawButton(4)) {
-            xSpeed = -joystick_2.getRawAxis(1);
-            ySpeed = joystick_2.getRawAxis(0);
-            rot = joystick_2.getRawAxis(4) / 6;
-        }*/
+        double xSpeed = -joystick.getRawAxis(1) / 1;
+        double ySpeed = joystick.getRawAxis(0) / 1;
+        double rot = joystick.getRawAxis(4) / 6;
 
         if (joystick.getRawButton(4)) {
             xSpeed = -joystick.getRawAxis(1);
@@ -62,12 +53,5 @@ public class JoystickDriver extends SubsystemBase {
         rot *= 0.5 * speed_decrease;
 
         drivetrain.SetSpeed(new Translation2d(xSpeed, ySpeed), rot);
-
-        r.arm.shoulderPower = (joystick.getRawAxis(2) + 0) / 2 + (joystick.getRawButton(5) ? -0.25 : 0); // (joystick.getRawButton(2)
-                                                                                                   // ? -1 : 0) +
-                                                                                                   // (joystick.getRawButton(4)
-                                                                                                   // ? 1 : 0);
-
-        //r.arm.gripperOpenPercent = (joystick_2.getRawAxis(4) + 1) / 2 - (joystick_2.getRawButton(6) ? 0.7 : 0);
     }
 }

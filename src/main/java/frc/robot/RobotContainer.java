@@ -15,14 +15,12 @@ import frc.robot.drivetrain.SwerveDrivetrain;
 public class RobotContainer {
 	public SwerveDrivetrain drivetrain;
 	public JoystickDriver joystick;
-	public ArmControl arm;
 	public MPU9250_ESP32 imu;
 	public AutopilotDriver driver;
 
 	void Setup(){
 		drivetrain = new SwerveDrivetrain();
 		joystick = new JoystickDriver();
-		arm = new ArmControl();
 		imu = new MPU9250_ESP32();
 		driver = new AutopilotDriver();
 

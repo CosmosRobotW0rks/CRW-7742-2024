@@ -14,7 +14,7 @@ import frc.robot.chargepad.EngageCommandGroup;
 
 public class Robot extends TimedRobot {
 	public static RobotContainer c = new RobotContainer();
-	private EngageCommandGroup ec = new EngageCommandGroup();
+	
 	@Override
 	public void robotInit() {
 		c.Setup();
