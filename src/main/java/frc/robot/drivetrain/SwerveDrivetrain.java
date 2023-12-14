@@ -17,10 +17,10 @@ public class SwerveDrivetrain extends SubsystemBase {
     private final double WIDTH = 11.2; // Inches? TODO Add dimensions
     private final double HEIGHT = 10.5; //
 
-    private SwerveModule TL = new SwerveModule(6, 8);
-    private SwerveModule TR = new SwerveModule(7, 5);
-    private SwerveModule BL = new SwerveModule(3, 4);
-    private SwerveModule BR = new SwerveModule(2, 1);
+    private SwerveModule TL = new SwerveModule(2, 1);
+    private SwerveModule TR = new SwerveModule(4, 6);
+    private SwerveModule BL = new SwerveModule(7, 5);
+    private SwerveModule BR = new SwerveModule(8, 3);
     // public AHRS gyro = new AHRS(SerialPort.Port.kUSB1);
 
     public boolean Enabled = true;
