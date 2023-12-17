@@ -6,13 +6,20 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.control.JoystickDriver;
+import frc.robot.drivetrain.SwerveDrivetrain;
 
 public class Robot extends TimedRobot {
-	public static RobotContainer c = new RobotContainer();
+	public static RobotSubsystems c = new RobotSubsystems();
+
+	public Robot(){
+		c.AddSubsystem(new SwerveDrivetrain());
+		c.AddSubsystem(new JoystickDriver());
+	}
 
 	@Override
 	public void robotInit() {
-		c.Setup();
+		c.Initialize();
 	}
 
 	@Override

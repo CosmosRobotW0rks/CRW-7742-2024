@@ -2,19 +2,14 @@ package frc.robot.drivetrain;
 
 import edu.wpi.first.math.kinematics.*; //TODO Odometry
 import edu.wpi.first.math.geometry.*;
-import edu.wpi.first.wpilibj.BuiltInAccelerometer;
-import edu.wpi.first.wpilibj.Preferences;
-import edu.wpi.first.wpilibj.interfaces.Accelerometer;
+import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.math.filter.LinearFilter;
-import frc.robot.Robot;
+import frc.robot.MySubsystem;
 import frc.robot.RobotSubsystems;
-import frc.robot.drivetrain.SwerveModule;
-import frc.robot.control.JoystickDriver;
+import com.kauailabs.navx.frc.AHRS;
 
 //TODO Add velocity provider
-public class SwerveDrivetrain extends SubsystemBase {
+public class SwerveDrivetrain extends MySubsystem {
     private final double WIDTH = 11.2; // Inches? TODO Add dimensions
     private final double HEIGHT = 10.5; //
 
@@ -22,14 +17,12 @@ public class SwerveDrivetrain extends SubsystemBase {
     private SwerveModule TR = new SwerveModule(4, 6);
     private SwerveModule BL = new SwerveModule(7, 5);
     private SwerveModule BR = new SwerveModule(8, 3);
-    // public AHRS gyro = new AHRS(SerialPort.Port.kUSB1);
+    public AHRS gyro = new AHRS(SerialPort.Port.kUSB1);
 
     public boolean Enabled = true;
 
     private Translation2d combinedTranslation = new Translation2d(0, 0);
     private double combinedRZ = 0;
-
-    private RobotSubsystems rbt;
 
     private SwerveDriveKinematics kinematics = new SwerveDriveKinematics(
             new Translation2d(WIDTH, HEIGHT),
@@ -38,7 +31,9 @@ public class SwerveDrivetrain extends SubsystemBase {
             new Translation2d(-WIDTH, -HEIGHT));
 
     public SwerveDrivetrain() {
-        rbt = Robot.c;
+    }
+
+    public void Initialize(RobotSubsystems subsystems){
     }
 
     public void Setup() {
@@ -57,7 +52,7 @@ public class SwerveDrivetrain extends SubsystemBase {
         ChassisSpeeds fieldOrientedXYSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(-combinedTranslation.getX(),
         combinedTranslation.getY(),
                 combinedRZ,
-                Rotation2d.fromDegrees(-rbt.imu.degrees/*-gyro.getFusedHeading()*/)); // Gyro is upside down? TODO Invert gyro properly
+                Rotation2d.fromDegrees(-gyro.getFusedHeading())); // Gyro is upside down? TODO Invert gyro properly
 
         SwerveModuleState[] states = kinematics.toSwerveModuleStates(fieldOrientedXYSpeeds);
         // Set angles

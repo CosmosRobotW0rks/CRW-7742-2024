@@ -4,22 +4,27 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
+import frc.robot.MySubsystem;
 import frc.robot.Robot;
 import frc.robot.RobotContainer;
+import frc.robot.RobotSubsystems;
 import frc.robot.drivetrain.SwerveDrivetrain;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 //TODO Multiple joystick support by registering independent joysticks
-public class JoystickDriver extends SubsystemBase {
+public class JoystickDriver extends MySubsystem {
     private Joystick joystick = new Joystick(0);
     //private Joystick joystick_2 = new Joystick(1);
     private SwerveDrivetrain drivetrain;
-    private RobotContainer r;
+    private RobotSubsystems r;
 
     public JoystickDriver() {
+
+    }
+
+    public void Initialize(RobotSubsystems subsystems){
         r = Robot.c;
-        drivetrain = r.drivetrain;
+        drivetrain = (SwerveDrivetrain)r.GetSubsystem("SwerveDrivetrain");
     }
 
     @Override
