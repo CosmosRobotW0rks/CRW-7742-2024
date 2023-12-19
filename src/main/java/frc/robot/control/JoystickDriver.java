@@ -33,7 +33,7 @@ public class JoystickDriver extends VelocityProvider {
         ySpeed = Math.abs(ySpeed) > 0.2 ? ySpeed : 0;
         rot = Math.abs(rot) > 0.03125 ? rot : 0;
 
-        double speed_decrease = joystick.getRawButton(conf.BrakeButton) ? 0.25 : 1; // TODO Speed decrease button
+        double speed_decrease = joystick.getRawButton(conf.BrakeButton) ? 0.25 : 1;
         double speed_increase = 1 + joystick.getRawAxis(conf.ThrottleAxis) * conf.ThrottleCoefficient;
         double speed_normal = 0.8125;
         double speed = speed_increase * speed_normal * speed_decrease;

@@ -9,7 +9,7 @@ import frc.robot.MPU9250_ESP32.MPU9250_ESP32;
 import frc.robot.control.JoystickDriver;
 import frc.robot.drivetrain.SwerveDrivetrain;
 
-//TODO Dynamic subsystem type registration and retrieval
+
 public class RobotContainer {
 	public SwerveDrivetrain drivetrain;
 	public MPU9250_ESP32 imu;
