@@ -17,11 +17,6 @@ public class AutopilotDriver extends SubsystemBase {
     private Pose2d TargetPose;
     public boolean AtTarget = false;
 
-    public boolean tX = true;
-    public boolean tY = true;
-    public boolean rZ = true;
-
-
     public DirectVelocityProvider vp = new DirectVelocityProvider();
 
     public void Init() {
@@ -33,6 +28,8 @@ public class AutopilotDriver extends SubsystemBase {
     public void periodic() {
         if (TargetPose != null)
             DriveToWaypoint();
+        else
+            vp.SetVelocity(new Translation3d(0, 0, 0));
 
         SmartDashboard.putBoolean("Autopilot Active", TargetPose != null);
     }
@@ -61,10 +58,6 @@ public class AutopilotDriver extends SubsystemBase {
         double rot = -zRotController.calculate(currentAngle, targetAngle);
         rot = Math.copySign(Math.min(Math.abs(rot), 0.05), rot);
         rot = Math.abs(rot) > 0.025 ? rot : 0;
-
-        xPwr = tX ? xPwr : 0;
-        yPwr = tY ? xPwr : 0;
-        rot = rZ ? rot : 0;
 
         if (diff > 0.025 && rot <= 0.45)
             vp.SetVelocity(new Translation3d(xPwr, yPwr, rot));
