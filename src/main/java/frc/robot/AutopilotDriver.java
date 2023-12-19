@@ -1,10 +1,12 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.drivetrain.DirectVelocityProvider;
 import frc.robot.drivetrain.SwerveDrivetrain;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class AutopilotDriver extends SubsystemBase {
@@ -19,6 +21,14 @@ public class AutopilotDriver extends SubsystemBase {
     public boolean tX = true;
     public boolean tY = true;
     public boolean rZ = true;
+
+
+    public DirectVelocityProvider vp = new DirectVelocityProvider();
+
+    public void Init() {
+        drivetrain = Robot.c.drivetrain;
+        drivetrain.AddProvider(vp);
+    }
 
     @Override
     public void periodic() {
@@ -58,15 +68,12 @@ public class AutopilotDriver extends SubsystemBase {
         rot = rZ ? rot : 0;
 
         if (diff > 0.025 && rot <= 0.45)
-            drivetrain.SetSpeed(new Translation2d(xPwr, yPwr), rot);
+            vp.SetVelocity(new Translation3d(xPwr, yPwr, rot));
         else if (rot != 0)
-            drivetrain.SetSpeed(new Translation2d(0, 0), rot);
-        else
+            vp.SetVelocity(new Translation3d(0, 0, rot));
+        else{
             AtTarget = true;
-
-    }
-
-    public void Init() {
-        drivetrain = Robot.c.drivetrain;
+            vp.SetVelocity(new Translation3d(0, 0, 0));
+        }
     }
 }
