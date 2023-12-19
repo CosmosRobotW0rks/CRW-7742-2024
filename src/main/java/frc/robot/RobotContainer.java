@@ -11,13 +11,11 @@ import frc.robot.drivetrain.SwerveDrivetrain;
 //TODO Dynamic subsystem type registration and retrieval
 public class RobotContainer {
 	public SwerveDrivetrain drivetrain;
-	public JoystickDriver joystick;
 	public MPU9250_ESP32 imu;
 	public AutopilotDriver driver;
 
 	void Setup(){
 		drivetrain = new SwerveDrivetrain();
-		joystick = new JoystickDriver();
 		imu = new MPU9250_ESP32();
 		driver = new AutopilotDriver();
 

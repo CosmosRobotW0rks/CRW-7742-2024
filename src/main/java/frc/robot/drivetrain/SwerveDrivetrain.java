@@ -2,16 +2,13 @@ package frc.robot.drivetrain;
 
 import edu.wpi.first.math.kinematics.*; //TODO Odometry
 import edu.wpi.first.math.geometry.*;
-import edu.wpi.first.wpilibj.BuiltInAccelerometer;
-import edu.wpi.first.wpilibj.Preferences;
-import edu.wpi.first.wpilibj.interfaces.Accelerometer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.math.filter.LinearFilter;
+
+import java.util.ArrayList;
+
 import frc.robot.Robot;
-import frc.robot.RobotSubsystems;
-import frc.robot.drivetrain.SwerveModule;
-import frc.robot.control.JoystickDriver;
+import frc.robot.RobotContainer;
 
 //TODO Add velocity provider
 public class SwerveDrivetrain extends SubsystemBase {
@@ -25,11 +22,9 @@ public class SwerveDrivetrain extends SubsystemBase {
     // public AHRS gyro = new AHRS(SerialPort.Port.kUSB1);
 
     public boolean Enabled = true;
+    private RobotContainer rbt;
 
-    private Translation2d combinedTranslation = new Translation2d(0, 0);
-    private double combinedRZ = 0;
-
-    private RobotSubsystems rbt;
+    private ArrayList<VelocityProvider> velocity_providers = new ArrayList<>();
 
     private SwerveDriveKinematics kinematics = new SwerveDriveKinematics(
             new Translation2d(WIDTH, HEIGHT),
@@ -47,17 +42,21 @@ public class SwerveDrivetrain extends SubsystemBase {
         odometry = new SwerveDriveOdometry(kinematics, gyroAngle, positions);
     }
 
-    public void SetSpeed(Translation2d xyspeed, double zrotation) {
-        combinedTranslation = new Translation2d(combinedTranslation.getX() + xyspeed.getX(),
-                combinedTranslation.getY() + xyspeed.getY());
-        combinedRZ += zrotation;
+    public void AddProvider(VelocityProvider p) {
+        this.velocity_providers.add(p);
     }
 
     void Drive() {
-        ChassisSpeeds fieldOrientedXYSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(-combinedTranslation.getX(),
-        combinedTranslation.getY(),
-                combinedRZ,
-                Rotation2d.fromDegrees(-rbt.imu.degrees/*-gyro.getFusedHeading()*/)); // Gyro is upside down? TODO Invert gyro properly
+        Translation3d combined = new Translation3d();
+        for (VelocityProvider p : velocity_providers)
+            combined = new Translation3d(combined.getX() + p.GetVelocity().getX(),
+                    combined.getY() + p.GetVelocity().getY(), combined.getZ() + p.GetVelocity().getZ());
+
+        ChassisSpeeds fieldOrientedXYSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(-combined.getX(),
+                combined.getY(),
+                combined.getZ(),
+                Rotation2d.fromDegrees(-rbt.imu.degrees/*-gyro.getFusedHeading()*/)); // Gyro is upside down? TODO
+                                                                                      // Invert gyro properly
 
         SwerveModuleState[] states = kinematics.toSwerveModuleStates(fieldOrientedXYSpeeds);
         // Set angles
@@ -72,9 +71,6 @@ public class SwerveDrivetrain extends SubsystemBase {
         TR.Drive(states[1].speedMetersPerSecond);
         BL.Drive(states[2].speedMetersPerSecond);
         BR.Drive(states[3].speedMetersPerSecond);
-
-        combinedTranslation = new Translation2d(0, 0);
-        combinedRZ = 0;
     }
 
     public void Home() {
@@ -83,7 +79,6 @@ public class SwerveDrivetrain extends SubsystemBase {
         BL.SetTarget(0, true);
         BR.SetTarget(0, true);
 
-        combinedTranslation.plus(new Translation2d(0.00001, 0));
         Drive();
     }
 
@@ -97,7 +92,9 @@ public class SwerveDrivetrain extends SubsystemBase {
         gyroAngle = Rotation2d.fromDegrees(0/*-gyro.getFusedHeading()*/);
         odometry.update(gyroAngle, positions);
         OdometryOutPose = odometry.getPoseMeters();
-        OdometryOutPose = new Pose2d(new Translation2d(OdometryOutPose.getTranslation().getX(), -OdometryOutPose.getTranslation().getY()), OdometryOutPose.getRotation());
+        OdometryOutPose = new Pose2d(
+                new Translation2d(OdometryOutPose.getTranslation().getX(), -OdometryOutPose.getTranslation().getY()),
+                OdometryOutPose.getRotation());
     }
 
     public void SetOdomPose(Pose2d pose, Rotation2d rot) {
