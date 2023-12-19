@@ -32,7 +32,6 @@ public class AutopilotCommand extends CommandBase{
     @Override
     public void end(boolean interrupted) {
         Driver.Goto(null);
-        Drivetrain.SetSpeed(new Translation2d(0, 0), 0);
     }
 
     @Override
