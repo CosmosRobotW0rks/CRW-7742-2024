@@ -39,7 +39,7 @@ public class JoystickDriver extends VelocityProvider {
 
         SmartDashboard.putString("Input Speed: ", ("x: " + xSpeed + ", y: " + ySpeed + ", rot: " + rot));
 
-        double speed_decrease = joystick.getRawButton(conf.BrakeButton) ? 0.25 : 1; // TODO Speed decrease button
+        double speed_decrease = joystick.getRawButton(conf.BrakeButton) ? 0.25 : 1;
         double speed_increase = 1 + joystick.getRawAxis(conf.ThrottleAxis) * conf.ThrottleCoefficient;
         double speed_normal = 0.8125;
         double speed = speed_increase * speed_normal * speed_decrease;
