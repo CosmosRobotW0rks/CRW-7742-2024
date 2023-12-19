@@ -16,7 +16,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class JoystickDriver extends VelocityProvider {
     private Joystick joystick;
     private JoystickConfiguration conf;
-    
+
     public JoystickDriver(Joystick joystick, JoystickConfiguration conf) {
         this.joystick = joystick;
         this.conf = conf;

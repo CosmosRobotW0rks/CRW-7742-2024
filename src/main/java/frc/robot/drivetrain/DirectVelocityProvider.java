@@ -7,7 +7,8 @@ public class DirectVelocityProvider extends VelocityProvider {
     public void SetVelocity(Translation3d velocity){
         vel = velocity;
     }
-    public Translation3d GetVelocity(){
+
+    public Translation3d GetVelocity() {
         return vel;
     }
 }
