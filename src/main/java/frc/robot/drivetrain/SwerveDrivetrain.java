@@ -49,9 +49,10 @@ public class SwerveDrivetrain extends SubsystemBase {
         Translation3d combined = new Translation3d();
         for (VelocityProvider p : velocity_providers)
             combined = new Translation3d(
-                    combined.getX() + (p.GetEnabledAxes()[0] ? p.GetVelocity().getX() : 0),
-                    combined.getY() + (p.GetEnabledAxes()[1] ? p.GetVelocity().getY() : 0),
-                    combined.getZ() + (p.GetEnabledAxes()[2] ? p.GetVelocity().getZ() : 0));
+                combined.getX() + (p.GetEnabledAxes()[0] ? p.GetVelocity().getX() : 0),
+                combined.getY() + (p.GetEnabledAxes()[1] ? p.GetVelocity().getY() : 0),
+                combined.getZ() + (p.GetEnabledAxes()[2] ? p.GetVelocity().getZ() : 0)
+                );
 
         ChassisSpeeds fieldOrientedXYSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(-combined.getX(),
                 combined.getY(),
