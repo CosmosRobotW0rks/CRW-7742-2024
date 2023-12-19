@@ -38,7 +38,6 @@ public class AutopilotDriver extends SubsystemBase {
         TargetPose = target;
         AtTarget = false;
 
-
         Engage();
     }
 
@@ -66,21 +65,21 @@ public class AutopilotDriver extends SubsystemBase {
             vp.SetVelocity(new Translation3d(xPwr, yPwr, rot));
         else if (rot != 0)
             vp.SetVelocity(new Translation3d(0, 0, rot));
-        else{
+        else {
             AtTarget = true;
             vp.SetVelocity(new Translation3d(0, 0, 0));
         }
     }
 
-    public boolean Engage(){
-        if(TargetPose != null){
+    public boolean Engage() {
+        if (TargetPose != null) {
             vp.SetActive(true);
             return true;
         }
         return false;
     }
 
-    public void Disengage(){
+    public void Disengage() {
         vp.SetActive(false);
     }
 }
