@@ -1,6 +1,6 @@
 package frc.robot.drivetrain;
 
-import edu.wpi.first.math.kinematics.*; //TODO Odometry
+import edu.wpi.first.math.kinematics.*;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import frc.robot.Robot;
 import frc.robot.RobotContainer;
 
-//TODO Add velocity provider
 public class SwerveDrivetrain extends SubsystemBase {
     private final double WIDTH = 11.2; // Inches? TODO Add dimensions
     private final double HEIGHT = 10.5; //
@@ -57,12 +56,11 @@ public class SwerveDrivetrain extends SubsystemBase {
         ChassisSpeeds fieldOrientedXYSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(-combined.getX(),
                 combined.getY(),
                 combined.getZ(),
-                Rotation2d.fromDegrees(-rbt.imu.degrees/*-gyro.getFusedHeading()*/)); // Gyro is upside down? TODO
-                                                                                      // Invert gyro properly
+                Rotation2d.fromDegrees(-rbt.imu.degrees/*-gyro.getFusedHeading()*/)); // Gyro is upside down?
+                                                                                      // TODO Invert gyro properly
 
         SwerveModuleState[] states = kinematics.toSwerveModuleStates(fieldOrientedXYSpeeds);
         // Set angles
-        // TODO This could be refactored
         TL.SetTarget(states[0].angle.getDegrees());
         TR.SetTarget(states[1].angle.getDegrees());
         BL.SetTarget(states[2].angle.getDegrees());
