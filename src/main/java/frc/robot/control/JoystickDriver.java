@@ -5,20 +5,20 @@ import frc.robot.drivetrain.VelocityProvider;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.can.VictorSPX;
-
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+import frc.robot.Robot;
 
 public class JoystickDriver extends VelocityProvider {
     private Joystick joystick;
     private JoystickConfiguration conf;
+    private Robot robot;
 
-    public JoystickDriver(Joystick joystick, JoystickConfiguration conf) {
+    public JoystickDriver(Robot robot, Joystick joystick, JoystickConfiguration conf) {
         this.joystick = joystick;
         this.conf = conf;
+        this.robot = robot;
     }
 
     public double GetAxisWithDeadzone(int axis){
@@ -32,6 +32,8 @@ public class JoystickDriver extends VelocityProvider {
     }
 
     public Translation3d GetVelocity() {
+        SetActive(robot.isTeleopEnabled());
+
         double xSpeed = GetAxisWithDeadzone(conf.ForwardAxis) * conf.ForwardCoefficient;
         double ySpeed = GetAxisWithDeadzone(conf.RightAxis) * conf.RightCoefficient;
         double rot = GetAxisWithDeadzone(conf.RotationAxis) * conf.RotationCoefficient;
