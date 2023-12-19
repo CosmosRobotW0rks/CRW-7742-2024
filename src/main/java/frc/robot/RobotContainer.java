@@ -17,7 +17,7 @@ public class RobotContainer {
 
 	public JoystickDriver joy_a;
 
-	void Setup(){
+	void Setup(Robot robot){
 		drivetrain = new SwerveDrivetrain();
 		imu = new MPU9250_ESP32();
 		driver = new AutopilotDriver();
@@ -25,7 +25,7 @@ public class RobotContainer {
 		drivetrain.Setup();
 		driver.Init();
 
-		joy_a = new JoystickDriver(new Joystick(0), RobotConfiguration.JoystickA());
+		joy_a = new JoystickDriver(robot, new Joystick(0), RobotConfiguration.JoystickA());
 		drivetrain.AddProvider(joy_a);
 	}
 }
