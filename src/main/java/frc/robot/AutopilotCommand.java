@@ -20,10 +20,6 @@ public class AutopilotCommand extends CommandBase{
 
     @Override
     public void initialize() {
-        Driver.tX = true;
-        Driver.tY = true;
-        Driver.rZ = true;
-        
         Driver.Goto(Target);
     }
 
