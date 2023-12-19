@@ -19,7 +19,7 @@ public abstract class VelocityProvider {
         this.rot_enabled = rot_enabled;
     }
 
-    public void SetActive(boolean enabled){
+    public void SetActive(boolean enabled) {
         x_enabled = enabled;
         y_enabled = enabled;
         rot_enabled = enabled;

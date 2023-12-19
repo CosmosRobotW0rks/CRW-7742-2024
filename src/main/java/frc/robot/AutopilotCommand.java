@@ -3,7 +3,7 @@ package frc.robot;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 
-public class AutopilotCommand extends CommandBase{
+public class AutopilotCommand extends CommandBase {
 
     private final AutopilotDriver Driver;
     private final frc.robot.drivetrain.SwerveDrivetrain Drivetrain;
@@ -12,6 +12,7 @@ public class AutopilotCommand extends CommandBase{
     public AutopilotCommand(Pose2d target) {
         Driver = Robot.c.driver;
         Drivetrain = Robot.c.drivetrain;
+
         addRequirements(Driver);
         addRequirements(Drivetrain);
 
