@@ -16,13 +16,17 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class JoystickDriver extends VelocityProvider {
     private Joystick joystick;
     private JoystickConfiguration conf;
+    private Robot robot;
 
-    public JoystickDriver(Joystick joystick, JoystickConfiguration conf) {
+    public JoystickDriver(Robot robot, Joystick joystick, JoystickConfiguration conf) {
         this.joystick = joystick;
         this.conf = conf;
+        this.robot = robot;
     }
 
     public Translation3d GetVelocity() {
+        SetActive(robot.isTeleopEnabled());
+
         double xSpeed = joystick.getRawAxis(conf.ForwardAxis) * conf.ForwardCoefficient;
         double ySpeed = joystick.getRawAxis(conf.RightAxis) * conf.RightCoefficient;
         double rot = joystick.getRawAxis(conf.RotationAxis) * conf.RotationCoefficient;

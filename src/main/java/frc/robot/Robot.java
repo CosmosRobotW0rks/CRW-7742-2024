@@ -12,7 +12,7 @@ public class Robot extends TimedRobot {
 
 	@Override
 	public void robotInit() {
-		c.Setup();
+		c.Setup(this);
 	}
 
 	@Override
