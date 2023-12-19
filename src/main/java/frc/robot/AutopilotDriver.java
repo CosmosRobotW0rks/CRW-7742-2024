@@ -56,8 +56,8 @@ public class AutopilotDriver extends SubsystemBase {
         double yDiff = currentPose.getY() - TargetPose.getY();
         double diff = Math.sqrt(xDiff * xDiff + yDiff * yDiff);
 
-        double currentAngle = drivetrain.gyroAngle.getRadians();
-        double targetAngle = TargetPose.getRotation().getRadians();
+        //double currentAngle = drivetrain.gyroAngle.getRadians();
+        //double targetAngle = TargetPose.getRotation().getRadians();
 
         double rot = 0;//-zRotController.calculate(currentAngle, targetAngle);
         rot = Math.copySign(Math.min(Math.abs(rot), 0.05), rot);
