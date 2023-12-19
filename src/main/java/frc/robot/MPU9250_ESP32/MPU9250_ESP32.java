@@ -1,9 +1,6 @@
 package frc.robot.MPU9250_ESP32;
 
-import java.sql.Time;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.SerialPort.Port;
 import edu.wpi.first.wpilibj.SerialPort.WriteBufferMode;
@@ -12,7 +9,7 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;;
 
 public class MPU9250_ESP32 extends SubsystemBase {
-    //private SerialPort p = new SerialPort(115200, Port.kUSB1);
+    private SerialPort p = new SerialPort(115200, Port.kUSB1);
 
     public String state;
     public double degrees;
@@ -38,7 +35,7 @@ public class MPU9250_ESP32 extends SubsystemBase {
     public MPU9250_ESP32() {
         SetupDashboard();
 
-        //p.setWriteBufferMode(WriteBufferMode.kFlushOnAccess);
+        p.setWriteBufferMode(WriteBufferMode.kFlushOnAccess);
     }
 
     public CalibrateCommand cCommand = new CalibrateCommand();
@@ -58,7 +55,7 @@ public class MPU9250_ESP32 extends SubsystemBase {
 
     @Override
     public void periodic() {
-        /*read();
+        read();
 
         long current_ms = new Date().getTime();
         if (current_ms - lastDashboardUpdateMS > 100) {
@@ -66,9 +63,9 @@ public class MPU9250_ESP32 extends SubsystemBase {
             SmartDashboard.putNumber("Gyro angle", degrees);
             SmartDashboard.putString("Gyro state", state);
             lastDashboardUpdateMS = current_ms;
-        }*/
+        }
     }
-    /*
+    
     void read() {
         if (p.getBytesReceived() == 0)
             return;
@@ -83,7 +80,7 @@ public class MPU9250_ESP32 extends SubsystemBase {
             processLine(lines[i]);
 
         r = lines[lines.length - 1];
-    }*/
+    }
 
     void processLine(String line) {
         line = line.replaceAll("\\s", "").replaceAll("\n", "");
@@ -110,19 +107,19 @@ public class MPU9250_ESP32 extends SubsystemBase {
     }
 
     public void SetDegrees(double degrees) {
-        //p.writeString("set_angle " + degrees + " ;");
-        //p.flush();
+        p.writeString("set_angle " + degrees + " ;");
+        p.flush();
     }
 
     public void Calibrate() {
         //System.out.println("Calibrating gyro");
-        //p.writeString("calib ;");
-        //p.flush();
+        p.writeString("calib ;");
+        p.flush();
     }
 
     public void Reset() {
         //System.out.println("Resetting gyro");
-        //p.writeString("reset ;");
-        //p.flush();
+        p.writeString("reset ;");
+        p.flush();
     }
 }
