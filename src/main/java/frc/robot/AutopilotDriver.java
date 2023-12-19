@@ -37,6 +37,9 @@ public class AutopilotDriver extends SubsystemBase {
     public void Goto(Pose2d target) {
         TargetPose = target;
         AtTarget = false;
+
+
+        Engage();
     }
 
     public void DriveToWaypoint() {
@@ -67,5 +70,17 @@ public class AutopilotDriver extends SubsystemBase {
             AtTarget = true;
             vp.SetVelocity(new Translation3d(0, 0, 0));
         }
+    }
+
+    public boolean Engage(){
+        if(TargetPose != null){
+            vp.SetActive(true);
+            return true;
+        }
+        return false;
+    }
+
+    public void Disengage(){
+        vp.SetActive(false);
     }
 }
