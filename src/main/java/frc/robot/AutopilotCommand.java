@@ -25,7 +25,7 @@ public class AutopilotCommand extends CommandBase{
 
     @Override
     public void end(boolean interrupted) {
-        Driver.Goto(null);
+        Driver.Disengage();
     }
 
     @Override
