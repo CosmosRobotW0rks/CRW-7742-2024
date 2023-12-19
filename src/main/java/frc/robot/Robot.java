@@ -33,7 +33,7 @@ public class Robot extends TimedRobot {
 	}
 
 	@Override
-	public void autonomousInit(){
-		//new EngageCommandGroup().schedule();
+	public void autonomousInit() {
+		// new EngageCommandGroup().schedule();
 	}
 }

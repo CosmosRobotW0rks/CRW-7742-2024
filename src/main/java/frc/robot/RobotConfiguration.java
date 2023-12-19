@@ -3,7 +3,7 @@ package frc.robot;
 import frc.robot.control.JoystickConfiguration;
 
 public class RobotConfiguration {
-    public static JoystickConfiguration JoystickA(){
+    public static JoystickConfiguration JoystickA() {
         JoystickConfiguration conf = new JoystickConfiguration();
         conf.ForwardAxis = 1;
         conf.RightAxis = 0;

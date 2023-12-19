@@ -19,7 +19,7 @@ public class SwerveModule {
     private RelativeEncoder DriveEncoder;
 
     private SparkMaxPIDController angleController;
-    private SparkMaxPIDController driveController;  
+    private SparkMaxPIDController driveController;
 
     private final double SPEED_CALIB_VALUE = 0.33 / 2; // software value / real value
 
