@@ -4,14 +4,10 @@ import frc.robot.drivetrain.VelocityProvider;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import frc.robot.Robot;
-import frc.robot.RobotContainer;
-import frc.robot.drivetrain.SwerveDrivetrain;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class JoystickDriver extends VelocityProvider {
     private Joystick joystick;
