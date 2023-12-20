@@ -11,7 +11,7 @@ public class RobotConfiguration {
 
         conf.ForwardCoefficient = -1;
         conf.RightCoefficient = 1;
-        conf.RotationCoefficient = 1 / 6;
+        conf.RotationCoefficient = 0.15;
 
         conf.ThrottleAxis = 3;
         conf.ThrottleCoefficient = 5;
