@@ -11,7 +11,7 @@ import frc.robot.Robot;
 import frc.robot.RobotContainer;
 
 //TODO Add velocity provider
-public class SwerveDrivetrain extends SubsystemBase {
+public class SwerveDrivetrain extends SubsystemBase implements AutoCloseable {
     private final double WIDTH = 11.2; // Inches? TODO Add dimensions
     private final double HEIGHT = 10.5; //
 
@@ -22,8 +22,10 @@ public class SwerveDrivetrain extends SubsystemBase {
     // public AHRS gyro = new AHRS(SerialPort.Port.kUSB1);
 
     public boolean Enabled = true;
+
     private RobotContainer rbt;
 
+    private Translation3d current_velocity;
     private ArrayList<VelocityProvider> velocity_providers = new ArrayList<>();
 
     private SwerveDriveKinematics kinematics = new SwerveDriveKinematics(
@@ -46,6 +48,10 @@ public class SwerveDrivetrain extends SubsystemBase {
         this.velocity_providers.add(p);
     }
 
+    public Translation3d GetCurrentVelocity(){
+        return current_velocity;
+    }
+
     void Drive() {
         Translation3d combined = new Translation3d();
         for (VelocityProvider p : velocity_providers)
@@ -53,6 +59,8 @@ public class SwerveDrivetrain extends SubsystemBase {
                     combined.getX() + (p.GetEnabledAxes()[0] ? p.GetVelocity().getX() : 0),
                     combined.getY() + (p.GetEnabledAxes()[1] ? p.GetVelocity().getY() : 0),
                     combined.getZ() + (p.GetEnabledAxes()[2] ? p.GetVelocity().getZ() : 0));
+
+        current_velocity = combined;
 
         ChassisSpeeds fieldOrientedXYSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(-combined.getX(),
                 combined.getY(),
@@ -136,5 +144,15 @@ public class SwerveDrivetrain extends SubsystemBase {
         Odometry();
         Drive();
         Display();
+    }
+
+    @Override
+    public void close() throws Exception {
+        TL.close();
+        TR.close();
+        BL.close();
+        BR.close();
+
+        velocity_providers.clear();
     }
 }

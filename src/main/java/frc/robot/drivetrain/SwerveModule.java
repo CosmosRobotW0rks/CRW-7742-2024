@@ -12,7 +12,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 
-public class SwerveModule {
+public class SwerveModule implements AutoCloseable {
     private CANSparkMax AngleSpark;
     private CANSparkMax DriveSpark;
     private RelativeEncoder AngleEncoder;
@@ -129,5 +129,11 @@ public class SwerveModule {
 
     public SwerveModuleState GetState() {
         return new SwerveModuleState(GetSpeed(), Rotation2d.fromRadians(GetAngle()));
+    }
+
+    @Override
+    public void close() throws Exception {
+        AngleSpark.close();
+        DriveSpark.close();
     }
 }
