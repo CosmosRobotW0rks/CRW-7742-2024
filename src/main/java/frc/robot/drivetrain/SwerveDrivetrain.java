@@ -7,7 +7,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import java.util.ArrayList;
 
-import frc.robot.Robot;
 import frc.robot.RobotContainer;
 
 public class SwerveDrivetrain extends SubsystemBase {
@@ -31,8 +30,8 @@ public class SwerveDrivetrain extends SubsystemBase {
             new Translation2d(-WIDTH, HEIGHT),
             new Translation2d(-WIDTH, -HEIGHT));
 
-    public SwerveDrivetrain() {
-        rbt = Robot.c;
+    public SwerveDrivetrain(RobotContainer c) {
+        rbt = c;
     }
 
     public void Setup() {

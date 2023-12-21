@@ -1,6 +1,7 @@
-package frc.robot;
+package frc.robot.drive;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotContainer;
 import frc.robot.drivetrain.DirectVelocityProvider;
 import frc.robot.drivetrain.SwerveDrivetrain;
 import edu.wpi.first.math.controller.PIDController;
@@ -19,8 +20,10 @@ public class AutopilotDriver extends SubsystemBase {
 
     public DirectVelocityProvider vp = new DirectVelocityProvider();
 
+    public AutopilotDriver(RobotContainer c){
+        drivetrain = c.drivetrain;
+    }
     public void Init() {
-        drivetrain = Robot.c.drivetrain;
         drivetrain.AddProvider(vp);
     }
 

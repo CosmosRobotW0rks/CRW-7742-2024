@@ -38,7 +38,7 @@ public class MPU9250_ESP32 extends SubsystemBase {
         p.setWriteBufferMode(WriteBufferMode.kFlushOnAccess);
     }
 
-    public CalibrateCommand cCommand = new CalibrateCommand();
+    public CalibrateCommand cCommand = new CalibrateCommand(this);
 
     public void SetupDashboard() {
         SmartDashboard.putNumber("Gyro Current Degrees", 0);
