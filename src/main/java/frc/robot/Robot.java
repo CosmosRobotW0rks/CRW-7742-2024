@@ -8,7 +8,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 public class Robot extends TimedRobot {
-	public static RobotContainer c = new RobotContainer();
+	public RobotContainer c = new RobotContainer();
 
 	@Override
 	public void robotInit() {
