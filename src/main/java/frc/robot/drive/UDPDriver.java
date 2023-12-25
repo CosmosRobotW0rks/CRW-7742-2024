@@ -14,11 +14,10 @@ public class UDPDriver extends SubsystemBase {
 
     public UDPDriver(RobotContainer c) throws SocketException {
         vel_sock = new DatagramSocket(11752);
-        gyro_sock = new DatagramSocket(11752);
+        gyro_sock = new DatagramSocket(11753);
     }
 
     @Override
     public void periodic() {
-
     }
 }
