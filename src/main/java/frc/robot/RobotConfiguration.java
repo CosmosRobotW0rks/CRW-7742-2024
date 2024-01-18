@@ -17,6 +17,8 @@ public class RobotConfiguration {
         conf.ThrottleCoefficient = 5;
 
         conf.BrakeButton = 6;
+        
+        conf.Deadzone = 0.05;
 
         return conf;
     }

@@ -13,4 +13,5 @@ public class JoystickConfiguration {
     public double ThrottleCoefficient;
 
     public int BrakeButton;
+    public double Deadzone;
 }
