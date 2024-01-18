@@ -16,8 +16,6 @@ public class JoystickDriver extends VelocityProvider {
     private Joystick joystick;
     private JoystickConfiguration conf;
 
-    public VictorSPX spx = new VictorSPX(23);
-    
     public JoystickDriver(Joystick joystick, JoystickConfiguration conf) {
         this.joystick = joystick;
         this.conf = conf;
@@ -44,8 +42,6 @@ public class JoystickDriver extends VelocityProvider {
         double speed_increase = 1 + joystick.getRawAxis(conf.ThrottleAxis) * conf.ThrottleCoefficient;
         double speed_normal = 0.8125;
         double speed = speed_increase * speed_normal * speed_decrease;
-
-        spx.set(ControlMode.PercentOutput, joystick.getRawAxis(conf.ThrottleAxis));
 
         joystick.setRumble(RumbleType.kLeftRumble, speed - 1.5);
 
