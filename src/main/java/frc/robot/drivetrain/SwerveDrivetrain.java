@@ -3,7 +3,10 @@ package frc.robot.drivetrain;
 import edu.wpi.first.math.kinematics.*;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import com.kauailabs.navx.frc.AHRS;
+import edu.wpi.first.wpilibj.SPI;
 
 import java.util.ArrayList;
 
@@ -17,7 +20,7 @@ public class SwerveDrivetrain extends SubsystemBase {
     private SwerveModule TR = new SwerveModule(4, 6);
     private SwerveModule BL = new SwerveModule(7, 5);
     private SwerveModule BR = new SwerveModule(8, 3);
-    // public AHRS gyro = new AHRS(SerialPort.Port.kUSB1);
+    public AHRS gyro = new AHRS(SPI.Port.kMXP);
 
     public boolean Enabled = true;
     private RobotContainer rbt;
@@ -35,7 +38,7 @@ public class SwerveDrivetrain extends SubsystemBase {
     }
 
     public void Setup() {
-        // gyro.calibrate();
+        SmartDashboard.putData("Calibrate gyroscope", new InstantCommand(() -> gyro.calibrate()));
         UpdateModules();
         odometry = new SwerveDriveOdometry(kinematics, gyroAngle, positions);
     }
@@ -46,17 +49,17 @@ public class SwerveDrivetrain extends SubsystemBase {
 
     void Drive() {
         Translation3d combined = new Translation3d();
-        for (VelocityProvider p : velocity_providers)
+        for (VelocityProvider p : velocity_providers){
             combined = new Translation3d(
                     combined.getX() + (p.GetEnabledAxes()[0] ? p.GetVelocity().getX() : 0),
                     combined.getY() + (p.GetEnabledAxes()[1] ? p.GetVelocity().getY() : 0),
                     combined.getZ() + (p.GetEnabledAxes()[2] ? p.GetVelocity().getZ() : 0));
+        }
 
         ChassisSpeeds fieldOrientedXYSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(-combined.getX(),
                 combined.getY(),
                 combined.getZ(),
-                Rotation2d.fromDegrees(-rbt.imu.degrees/*-gyro.getFusedHeading()*/)); // Gyro is upside down?
-                                                                                      // TODO Invert gyro properly
+                gyroAngle); // Gyro is upside down?
 
         SwerveModuleState[] states = kinematics.toSwerveModuleStates(fieldOrientedXYSpeeds);
         // Set angles
@@ -88,7 +91,7 @@ public class SwerveDrivetrain extends SubsystemBase {
     public Pose2d OdometryOutPose;
 
     void Odometry() {
-        gyroAngle = Rotation2d.fromDegrees(0/*-gyro.getFusedHeading()*/);
+        gyroAngle = Rotation2d.fromDegrees(-gyro.getFusedHeading());
         odometry.update(gyroAngle, positions);
         OdometryOutPose = odometry.getPoseMeters();
         OdometryOutPose = new Pose2d(
