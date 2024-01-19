@@ -21,7 +21,7 @@ public class JoystickDriver extends VelocityProvider {
     }
 
     public double GetAxisWithDeadzone(int axis){
-        double val = joystick.getRawAxis(conf.ForwardAxis);
+        double val = joystick.getRawAxis(axis);
         if(val > conf.Deadzone)
             return val - conf.Deadzone;
         else if (val < -conf.Deadzone)
@@ -31,8 +31,6 @@ public class JoystickDriver extends VelocityProvider {
     }
 
     public Translation3d GetVelocity() {
-        SetActive(robot.isTeleopEnabled());
-
         double xSpeed = GetAxisWithDeadzone(conf.ForwardAxis) * conf.ForwardCoefficient;
         double ySpeed = GetAxisWithDeadzone(conf.RightAxis) * conf.RightCoefficient;
         double rot = GetAxisWithDeadzone(conf.RotationAxis) * conf.RotationCoefficient;
@@ -51,5 +49,11 @@ public class JoystickDriver extends VelocityProvider {
         rot *= speed_decrease;
 
         return new Translation3d(xSpeed, ySpeed, rot);
+    }
+
+    @Override
+    public boolean[] GetEnabledAxes(){
+        SetActive(robot.isTeleopEnabled());
+        return super.GetEnabledAxes();
     }
 }
