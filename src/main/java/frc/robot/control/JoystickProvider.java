@@ -10,7 +10,7 @@ public class JoystickProvider extends SubsystemBase {
     private Joystick joystick;
     private double deadzone;
 
-    public ArrayList<JoystickRequester> requesters;
+    public ArrayList<JoystickRequester> requesters = new ArrayList<>();
 
     public JoystickProvider(Joystick joystick, double deadzone) {
         this.joystick = joystick;

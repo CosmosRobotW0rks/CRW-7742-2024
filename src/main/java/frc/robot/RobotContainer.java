@@ -10,6 +10,7 @@ import frc.robot.control.JoystickDriver;
 import frc.robot.control.JoystickProvider;
 import frc.robot.drive.AutopilotDriver;
 import frc.robot.drivetrain.SwerveDrivetrain;
+import frc.robot.shooter.Shooter;
 
 
 public class RobotContainer {
@@ -17,19 +18,25 @@ public class RobotContainer {
 	public AutopilotDriver auto_driver;
 	public JoystickDriver main_joy_driver;
 
+	public Shooter shooter;
+
 	public JoystickProvider main;
 
 	void Setup(Robot robot) {
 		drivetrain = new SwerveDrivetrain(this);
 		auto_driver = new AutopilotDriver(this);
 
+		main = new JoystickProvider(new Joystick(0), 0.05);
+		main_joy_driver = new JoystickDriver();
+
+		shooter = new Shooter();
+
 		drivetrain.Setup();
 		auto_driver.Init();
+		main_joy_driver.Init(robot, main);
 
-		main = new JoystickProvider(new Joystick(0), 0.05);
+		shooter.Init(main);
 
-		main_joy_driver = new JoystickDriver();
-		main_joy_driver.SetActiveProvider(main);
 		main_joy_driver.SetConfig(RobotConfiguration.MainJoystick());
 
 		drivetrain.AddProvider(main_joy_driver);

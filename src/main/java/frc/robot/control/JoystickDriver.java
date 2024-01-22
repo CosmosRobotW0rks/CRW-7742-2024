@@ -8,18 +8,20 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import frc.robot.Robot;
+import frc.robot.RobotContainer;
 
 public class JoystickDriver extends VelocityProvider {
     private DriveJoystickConfiguration config;
-    private Robot robot;
     private JoystickRequester joystick;
+    private Robot robot;
+
+    public void Init(Robot robot, JoystickProvider provider){
+        this.robot = robot;
+        this.joystick = new JoystickRequester(provider);
+    }
 
     public void SetConfig(DriveJoystickConfiguration configuration){
         this.config = configuration;
-    }
-
-    public void SetActiveProvider(JoystickProvider provider){
-        this.joystick.SetActiveProvider(provider);
     }
 
     public Translation3d GetVelocity() {
