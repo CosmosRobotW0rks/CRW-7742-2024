@@ -7,24 +7,32 @@ package frc.robot;
 import edu.wpi.first.wpilibj.Joystick;
 import frc.robot.MPU9250_ESP32.MPU9250_ESP32;
 import frc.robot.control.JoystickDriver;
+import frc.robot.control.JoystickProvider;
 import frc.robot.drive.AutopilotDriver;
 import frc.robot.drivetrain.SwerveDrivetrain;
 
 
 public class RobotContainer {
 	public SwerveDrivetrain drivetrain;
-	public AutopilotDriver driver;
+	public AutopilotDriver auto_driver;
+	public JoystickDriver main_joy_driver;
 
-	public JoystickDriver joy_a;
+	public JoystickProvider main;
 
 	void Setup(Robot robot) {
 		drivetrain = new SwerveDrivetrain(this);
-		driver = new AutopilotDriver(this);
+		auto_driver = new AutopilotDriver(this);
 
 		drivetrain.Setup();
-		driver.Init();
+		auto_driver.Init();
 
-		joy_a = new JoystickDriver(robot, new Joystick(0), RobotConfiguration.JoystickA());
-		drivetrain.AddProvider(joy_a);
+		main = new JoystickProvider(new Joystick(0), 0.05);
+
+		main_joy_driver = new JoystickDriver();
+		main_joy_driver.SetActiveProvider(main);
+		main_joy_driver.SetConfig(RobotConfiguration.MainJoystick());
+
+		drivetrain.AddProvider(main_joy_driver);
+
 	}
 }
