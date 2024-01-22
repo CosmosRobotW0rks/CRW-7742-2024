@@ -11,7 +11,7 @@ public class AutopilotCommand extends CommandBase {
     private final Pose2d Target;
 
     public AutopilotCommand(RobotContainer c, Pose2d target) {
-        Driver = c.driver;
+        Driver = c.auto_driver;
         Drivetrain = c.drivetrain;
 
         addRequirements(Driver);

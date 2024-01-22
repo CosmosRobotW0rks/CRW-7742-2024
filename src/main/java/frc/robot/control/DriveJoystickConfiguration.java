@@ -1,6 +1,6 @@
 package frc.robot.control;
 
-public class JoystickConfiguration {
+public class DriveJoystickConfiguration {
     public int ForwardAxis;
     public int RightAxis;
     public int RotationAxis;

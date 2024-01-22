@@ -10,39 +10,31 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
 
 public class JoystickDriver extends VelocityProvider {
-    private Joystick joystick;
-    private JoystickConfiguration conf;
+    private DriveJoystickConfiguration config;
     private Robot robot;
+    private JoystickRequester joystick;
 
-    public JoystickDriver(Robot robot, Joystick joystick, JoystickConfiguration conf) {
-        this.joystick = joystick;
-        this.conf = conf;
-        this.robot = robot;
+    public void SetConfig(DriveJoystickConfiguration configuration){
+        this.config = configuration;
     }
 
-    public double GetAxisWithDeadzone(int axis){
-        double val = joystick.getRawAxis(axis);
-        if(val > conf.Deadzone)
-            return val - conf.Deadzone;
-        else if (val < -conf.Deadzone)
-            return val + conf.Deadzone;
-        else
-            return 0;
+    public void SetActiveProvider(JoystickProvider provider){
+        this.joystick.SetActiveProvider(provider);
     }
 
     public Translation3d GetVelocity() {
-        double xSpeed = GetAxisWithDeadzone(conf.ForwardAxis) * conf.ForwardCoefficient;
-        double ySpeed = GetAxisWithDeadzone(conf.RightAxis) * conf.RightCoefficient;
-        double rot = GetAxisWithDeadzone(conf.RotationAxis) * conf.RotationCoefficient;
+        double xSpeed = joystick.GetAxis(config.ForwardAxis) * config.ForwardCoefficient;
+        double ySpeed = joystick.GetAxis(config.RightAxis) * config.RightCoefficient;
+        double rot = joystick.GetAxis(config.RotationAxis) * config.RotationCoefficient;
 
         SmartDashboard.putString("Input Speed: ", ("x: " + xSpeed + ", y: " + ySpeed + ", rot: " + rot));
 
-        double speed_decrease = joystick.getRawButton(conf.BrakeButton) ? 0.25 : 1;
-        double speed_increase = 1 + joystick.getRawAxis(conf.ThrottleAxis) * conf.ThrottleCoefficient;
+        double speed_decrease = joystick.GetButton(config.BrakeButton) ? 0.25 : 1;
+        double speed_increase = 1 + joystick.GetAxis(config.ThrottleAxis) * config.ThrottleCoefficient;
         double speed_normal = 0.8125;
         double speed = speed_increase * speed_normal * speed_decrease;
 
-        joystick.setRumble(RumbleType.kLeftRumble, speed - 1.5);
+        joystick.SetRumble(speed - 1.5);
 
         xSpeed *= speed;
         ySpeed *= speed;

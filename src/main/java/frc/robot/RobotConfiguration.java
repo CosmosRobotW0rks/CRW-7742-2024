@@ -1,10 +1,10 @@
 package frc.robot;
 
-import frc.robot.control.JoystickConfiguration;
+import frc.robot.control.DriveJoystickConfiguration;
 
 public class RobotConfiguration {
-    public static JoystickConfiguration JoystickA() {
-        JoystickConfiguration conf = new JoystickConfiguration();
+    public static DriveJoystickConfiguration MainJoystick() {
+        DriveJoystickConfiguration conf = new DriveJoystickConfiguration();
         conf.ForwardAxis = 1;
         conf.RightAxis = 0;
         conf.RotationAxis = 4;
