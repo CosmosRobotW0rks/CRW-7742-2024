@@ -2,9 +2,9 @@ package frc.robot.MPU9250_ESP32;
 
 import java.util.Date;
 
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
 
-public class CalibrateCommand extends CommandBase {
+public class CalibrateCommand extends Command {
     boolean calibrate_waited = false;
     long prev_sent_ms = 0;
     MPU9250_ESP32 imu;
