@@ -3,7 +3,7 @@ package frc.robot;
 import frc.robot.control.DriveJoystickConfiguration;
 
 public class RobotConfiguration {
-    public static DriveJoystickConfiguration MainJoystick() {
+    public static final DriveJoystickConfiguration MainJoystick() {
         DriveJoystickConfiguration conf = new DriveJoystickConfiguration();
         conf.ForwardAxis = 1;
         conf.RightAxis = 0;

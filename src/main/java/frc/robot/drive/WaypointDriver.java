@@ -9,7 +9,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class AutopilotDriver extends SubsystemBase {
+public class WaypointDriver extends SubsystemBase {
     public static SwerveDrivetrain drivetrain;
     private PIDController xPositionController = new PIDController(6, 0, 0.8);
     private PIDController yPositionController = new PIDController(6, 0, 0.8);
@@ -20,7 +20,7 @@ public class AutopilotDriver extends SubsystemBase {
 
     public DirectVelocityProvider vp = new DirectVelocityProvider();
 
-    public AutopilotDriver(RobotContainer c){
+    public WaypointDriver(RobotContainer c){
         drivetrain = c.drivetrain;
     }
     public void Init() {
