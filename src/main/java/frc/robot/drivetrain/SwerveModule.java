@@ -3,10 +3,10 @@ package frc.robot.drivetrain;
 import java.sql.Time;
 
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMaxLowLevel;
+import com.revrobotics.CANSparkLowLevel;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkMaxPIDController;
-import com.revrobotics.CANSparkMax.ControlType;
+import com.revrobotics.SparkPIDController;
+import com.revrobotics.CANSparkBase.ControlType;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -18,8 +18,8 @@ public class SwerveModule {
     private RelativeEncoder AngleEncoder;
     private RelativeEncoder DriveEncoder;
 
-    private SparkMaxPIDController angleController;
-    private SparkMaxPIDController driveController;
+    private SparkPIDController angleController;
+    private SparkPIDController driveController;
 
     private final double SPEED_CALIB_VALUE = 0.33 / 2; // software value / real value
 
@@ -36,8 +36,8 @@ public class SwerveModule {
     Time lastUpdaTime;
 
     public SwerveModule(int AngleCANID, int DriveCANID) {
-        AngleSpark = new CANSparkMax(AngleCANID, CANSparkMaxLowLevel.MotorType.kBrushless);
-        DriveSpark = new CANSparkMax(DriveCANID, CANSparkMaxLowLevel.MotorType.kBrushless);
+        AngleSpark = new CANSparkMax(AngleCANID, CANSparkLowLevel.MotorType.kBrushless);
+        DriveSpark = new CANSparkMax(DriveCANID, CANSparkLowLevel.MotorType.kBrushless);
 
         AngleEncoder = AngleSpark.getEncoder();
         AngleEncoder.setPositionConversionFactor(2.0 * Math.PI / (18 / 1));

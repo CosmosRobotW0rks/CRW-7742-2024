@@ -38,7 +38,6 @@ public class SwerveDrivetrain extends SubsystemBase {
     }
 
     public void Setup() {
-        SmartDashboard.putData("Calibrate gyroscope", new InstantCommand(() -> gyro.calibrate()));
         UpdateModules();
         odometry = new SwerveDriveOdometry(kinematics, gyroAngle, positions);
     }

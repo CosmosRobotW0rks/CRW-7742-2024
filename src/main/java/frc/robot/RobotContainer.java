@@ -8,14 +8,14 @@ import edu.wpi.first.wpilibj.Joystick;
 import frc.robot.MPU9250_ESP32.MPU9250_ESP32;
 import frc.robot.control.JoystickDriver;
 import frc.robot.control.JoystickProvider;
-import frc.robot.drive.AutopilotDriver;
+import frc.robot.drive.WaypointDriver;
 import frc.robot.drivetrain.SwerveDrivetrain;
 import frc.robot.shooter.Shooter;
 
 
 public class RobotContainer {
 	public SwerveDrivetrain drivetrain;
-	public AutopilotDriver auto_driver;
+	public WaypointDriver auto_driver;
 	public JoystickDriver main_joy_driver;
 
 	public Shooter shooter;
@@ -24,7 +24,7 @@ public class RobotContainer {
 
 	void Setup(Robot robot) {
 		drivetrain = new SwerveDrivetrain(this);
-		auto_driver = new AutopilotDriver(this);
+		auto_driver = new WaypointDriver(this);
 
 		main = new JoystickProvider(new Joystick(0), 0.05);
 		main_joy_driver = new JoystickDriver();

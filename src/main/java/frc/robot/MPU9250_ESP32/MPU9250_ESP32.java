@@ -5,7 +5,7 @@ import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.SerialPort.Port;
 import edu.wpi.first.wpilibj.SerialPort.WriteBufferMode;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;;
 
 public class MPU9250_ESP32 extends SubsystemBase {
@@ -19,16 +19,16 @@ public class MPU9250_ESP32 extends SubsystemBase {
 
     public long lastDashboardUpdateMS;
 
-    public CommandBase SetDegreesCommand(double deg) {
+    public Command SetDegreesCommand(double deg) {
         return this.runOnce(() -> this.SetDegrees(deg)).ignoringDisable(true);
     }
 
-    public CommandBase SetDegreesFromDashboardCommand() {
+    public Command SetDegreesFromDashboardCommand() {
         return this.runOnce(() -> this.SetDegrees(SmartDashboard.getNumber("Gyro Current Degrees", degrees)))
                 .ignoringDisable(true);
     }
 
-    public CommandBase ResetCommand() {
+    public Command ResetCommand() {
         return this.runOnce(() -> this.Reset()).ignoringDisable(true);
     }
 

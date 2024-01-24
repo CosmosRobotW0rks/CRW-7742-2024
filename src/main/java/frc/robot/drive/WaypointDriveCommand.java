@@ -1,16 +1,17 @@
 package frc.robot.drive;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.wpilibj2.command.CommandBase;
+import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer;
+import frc.robot.drivetrain.SwerveDrivetrain;
 
-public class AutopilotCommand extends CommandBase {
+public class WaypointDriveCommand extends Command {
 
-    private final AutopilotDriver Driver;
-    private final frc.robot.drivetrain.SwerveDrivetrain Drivetrain;
+    private final WaypointDriver Driver;
+    private final SwerveDrivetrain Drivetrain;
     private final Pose2d Target;
 
-    public AutopilotCommand(RobotContainer c, Pose2d target) {
+    public WaypointDriveCommand(RobotContainer c, Pose2d target) {
         Driver = c.auto_driver;
         Drivetrain = c.drivetrain;
 
