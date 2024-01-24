@@ -3,13 +3,11 @@ package frc.robot.shooter;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMaxLowLevel;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkMaxPIDController;
-import com.revrobotics.CANSparkMax.ControlType;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.SparkPIDController;
+import com.revrobotics.CANSparkBase.ControlType;
+import com.revrobotics.CANSparkLowLevel.MotorType;
 
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.control.JoystickProvider;
 import frc.robot.control.JoystickRequester;
@@ -26,8 +24,8 @@ public class Shooter extends SubsystemBase{
     private RelativeEncoder left_encoder;
     private RelativeEncoder right_encoder;
 
-    SparkMaxPIDController left_controller;
-    SparkMaxPIDController right_controller;
+    SparkPIDController left_controller;
+    SparkPIDController right_controller;
     //private CANSparkMax right = new CANSparkMax(AngleCANID, CANSparkMaxLowLevel.MotorType.kBrushless);
 
     public void Init(JoystickProvider provider){
