@@ -31,6 +31,10 @@ public class JoystickProvider extends SubsystemBase {
         return joystick.getRawButton(axis);
     }
 
+    public int GetDPad(){
+        return joystick.getPOV();
+    }
+
     @Override
     public void periodic(){
         double combined_rumble = 0;

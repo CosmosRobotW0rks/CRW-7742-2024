@@ -30,4 +30,8 @@ public class JoystickRequester {
     public boolean GetButton(int button){
         return provider.GetButton(button);
     }
+
+    public int GetDPad(){
+        return provider.GetDPad();
+    }
 }
