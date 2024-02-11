@@ -15,9 +15,38 @@ public class UDPDriver extends SubsystemBase {
     public UDPDriver(RobotContainer c) throws SocketException {
         vel_sock = new DatagramSocket(11752);
         gyro_sock = new DatagramSocket(11753);
+
+        Thread listener_thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                listen();
+            }
+        });
+
+        Thread sender_thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                send();
+            }
+        });
+
+        listener_thread.start();
+        sender_thread.start();
     }
 
     @Override
     public void periodic() {
+    }
+
+    private void listen() {
+        while(true){
+
+        }
+    }
+
+    private void send() {
+        while(true){
+
+        }
     }
 }
