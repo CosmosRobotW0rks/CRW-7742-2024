@@ -11,6 +11,7 @@ import frc.robot.control.JoystickProvider;
 import frc.robot.drive.WaypointDriver;
 import frc.robot.drivetrain.SwerveDrivetrain;
 import frc.robot.intake.Intake;
+import frc.robot.power.Power;
 import frc.robot.shooter.Hinge;
 import frc.robot.shooter.Shooter;
 
@@ -18,6 +19,8 @@ public class RobotContainer {
 	public SwerveDrivetrain drivetrain;
 	public WaypointDriver auto_driver;
 	public JoystickDriver main_joy_driver;
+
+	public Power power;
 
 	public Shooter shooter;
 	public Intake intake;
@@ -28,6 +31,8 @@ public class RobotContainer {
 	void Setup(Robot robot) {
 		drivetrain = new SwerveDrivetrain(this);
 		auto_driver = new WaypointDriver(this);
+
+		power = new Power();
 
 		main = new JoystickProvider(new Joystick(0), 0.05);
 		main_joy_driver = new JoystickDriver();
@@ -40,7 +45,7 @@ public class RobotContainer {
 		auto_driver.Init();
 		main_joy_driver.Init(robot, main);
 
-		shooter.Init(main);
+		shooter.Init(this, main);
 		intake.Init(main);
 		hinge.Init(main);
 
