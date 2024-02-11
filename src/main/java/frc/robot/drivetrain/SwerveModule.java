@@ -59,10 +59,12 @@ public class SwerveModule {
     }
 
     double TargetAngle = 0;
+    double TargetAngleAbsolute = 0;
     boolean inverted = false;
 
     public void Drive(double Speed) {
-        driveController.setReference(Speed * 250.0 * SPEED_CALIB_VALUE * (inverted ? -1 : 1), ControlType.kVelocity);
+        double actual_speed = Speed * Math.sin(GetDistanceToTargetAngle());
+        driveController.setReference(actual_speed * 250.0 * SPEED_CALIB_VALUE * (inverted ? -1 : 1), ControlType.kVelocity);
     }
 
     public double GetAngle() {
@@ -84,6 +86,10 @@ public class SwerveModule {
         return nt;
     }
 
+    public double GetDistanceToTargetAngle(){
+        return AngleEncoder.getPosition() - TargetAngleAbsolute;
+    }
+
     public void SetTarget(double angle, boolean forceForward) {
         double currentAngle = AngleEncoder.getPosition();
         double currentAngleClamped = currentAngle % (2.0 * Math.PI);
@@ -96,19 +102,17 @@ public class SwerveModule {
         double diff1 = Math.abs(t1 - currentAngle);
         double diff2 = Math.abs(t2 - currentAngle);
 
-        double newTarget;
-
         if (!forceForward && diff1 > diff2) {
             TargetAngle = t > Math.PI ? t - Math.PI : t + Math.PI;
-            newTarget = t2;
+            TargetAngleAbsolute = t2;
             inverted = false;
         } else {
             TargetAngle = t;
-            newTarget = t1;
+            TargetAngleAbsolute = t1;
             inverted = true;
         }
 
-        angleController.setReference(newTarget, ControlType.kPosition);
+        angleController.setReference(TargetAngleAbsolute, ControlType.kPosition);
     }
 
     public void SetTarget(double angle) {
