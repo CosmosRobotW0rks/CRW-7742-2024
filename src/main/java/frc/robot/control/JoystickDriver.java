@@ -11,7 +11,7 @@ import frc.robot.Robot;
 import frc.robot.RobotContainer;
 
 public class JoystickDriver extends VelocityProvider {
-    private DriveJoystickConfiguration config;
+    private JoystickConfiguration config;
     private JoystickRequester joystick;
     private Robot robot;
 
@@ -20,7 +20,7 @@ public class JoystickDriver extends VelocityProvider {
         this.joystick = new JoystickRequester(provider);
     }
 
-    public void SetConfig(DriveJoystickConfiguration configuration){
+    public void SetConfig(JoystickConfiguration configuration){
         this.config = configuration;
     }
 

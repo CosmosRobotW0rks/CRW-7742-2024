@@ -1,4 +1,4 @@
-package frc.robot.shooter;
+package frc.robot.note_manipulation.shooter;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
@@ -8,30 +8,26 @@ import com.revrobotics.SparkPIDController;
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.control.JoystickProvider;
-import frc.robot.control.JoystickRequester;
+import frc.robot.power.Power;
 
 public class Shooter extends SubsystemBase {
-    private JoystickRequester joystick;
-
     private CANSparkMax left = new CANSparkMax(39, MotorType.kBrushless);
     private CANSparkMax right = new CANSparkMax(36, MotorType.kBrushless);
 
-    private VictorSPX aux_r = new VictorSPX(31);
-    private VictorSPX aux_l = new VictorSPX(32);
-
     private RelativeEncoder left_encoder;
     private RelativeEncoder right_encoder;
+
+    double rpm = 0;
+    double conveyor = 0;
 
     SparkPIDController left_controller;
     SparkPIDController right_controller;
     // private CANSparkMax right = new CANSparkMax(AngleCANID,
     // CANSparkMaxLowLevel.MotorType.kBrushless);
 
-    public void Init(JoystickProvider provider) {
-        this.joystick = new JoystickRequester(provider);
-
+    public void Init() {
         left_encoder = left.getEncoder();
         right_encoder = right.getEncoder();
 
@@ -48,24 +44,23 @@ public class Shooter extends SubsystemBase {
         right_controller.setOutputRange(-1, 1);
     }
 
+    public void SetShooter(double rpm) {
+        this.rpm = rpm;
+    }
+
+    public boolean AtTargetRPM() {
+        double l_current = left_encoder.getVelocity();
+        double r_current = right_encoder.getVelocity();
+
+        double l_diff = Math.abs(l_current - rpm);
+        double r_diff = Math.abs(-r_current - rpm);
+
+        return l_diff + r_diff < 50;
+    }
+
     @Override
     public void periodic() {
-        double rpm = joystick.GetAxis(2) * 5000;
-
-        double aux_out = joystick.GetButton(5) ? 0.5 : 0;
-
-        if (joystick.GetButton(1))
-            aux_out = -0.25;
-
-        if (rpm > 500) {
-            left_controller.setReference(rpm, ControlType.kVelocity);
-            right_controller.setReference(-rpm, ControlType.kVelocity);
-        } else {
-            left_controller.setReference(0, ControlType.kDutyCycle);
-            right_controller.setReference(0, ControlType.kDutyCycle);
-        }
-
-        aux_r.set(ControlMode.PercentOutput, -aux_out);
-        aux_l.set(ControlMode.PercentOutput, aux_out);
+        left_controller.setReference(rpm, ControlType.kVelocity);
+        right_controller.setReference(-rpm, ControlType.kVelocity);
     }
 }

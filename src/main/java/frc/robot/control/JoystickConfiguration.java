@@ -1,6 +1,6 @@
 package frc.robot.control;
 
-public class DriveJoystickConfiguration {
+public class JoystickConfiguration {
     public int ForwardAxis;
     public int RightAxis;
     public int RotationAxis;
@@ -13,5 +13,11 @@ public class DriveJoystickConfiguration {
     public double ThrottleCoefficient;
 
     public int BrakeButton;
+
+    public int IntakeOperationThrottle;
+    public int ModeSwitchButton;
+
+    public int HingeManualControlAxis;
+
     public double Deadzone;
 }

@@ -5,15 +5,16 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.Joystick;
-import frc.robot.MPU9250_ESP32.MPU9250_ESP32;
 import frc.robot.control.JoystickDriver;
 import frc.robot.control.JoystickProvider;
 import frc.robot.drive.WaypointDriver;
 import frc.robot.drivetrain.SwerveDrivetrain;
-import frc.robot.intake.Intake;
+import frc.robot.note_manipulation.NoteSystemController;
+import frc.robot.note_manipulation.intake.Intake;
+import frc.robot.note_manipulation.shooter.Hinge;
+import frc.robot.note_manipulation.shooter.Shooter;
+import frc.robot.note_manipulation.shooter.Conveyor;
 import frc.robot.power.Power;
-import frc.robot.shooter.Hinge;
-import frc.robot.shooter.Shooter;
 
 public class RobotContainer {
 	public SwerveDrivetrain drivetrain;
@@ -22,9 +23,12 @@ public class RobotContainer {
 
 	public Power power;
 
+	public Conveyor conveyor;
 	public Shooter shooter;
 	public Intake intake;
 	public Hinge hinge;
+
+	public NoteSystemController note_c;
 
 	public JoystickProvider main;
 
@@ -37,18 +41,20 @@ public class RobotContainer {
 		main = new JoystickProvider(new Joystick(0), 0.05);
 		main_joy_driver = new JoystickDriver();
 
+		conveyor = new Conveyor();
 		shooter = new Shooter();
 		intake = new Intake();
 		hinge = new Hinge();
 
+		note_c = new NoteSystemController();
+
 		drivetrain.Setup();
-		auto_driver.Init();
 		main_joy_driver.Init(robot, main);
 
-		shooter.Init(this, main);
-		intake.Init(main);
-		hinge.Init(main);
+		shooter.Init();
+		conveyor.Init(power);
 
+		note_c.Init(this, RobotConfiguration.MainJoystick(), RobotConfiguration.GetNoteSystemConfiguration());
 		main_joy_driver.SetConfig(RobotConfiguration.MainJoystick());
 
 		drivetrain.AddProvider(main_joy_driver);
