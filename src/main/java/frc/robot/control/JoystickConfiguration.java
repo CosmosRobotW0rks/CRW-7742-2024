@@ -14,8 +14,8 @@ public class JoystickConfiguration {
 
     public int BrakeButton;
 
-    public int IntakeOperationThrottle;
-    public int ModeSwitchButton;
+    public int LoadingThrottle;
+    public int ActionButton;
 
     public int HingeManualControlAxis;
 

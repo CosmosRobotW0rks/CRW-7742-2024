@@ -19,8 +19,8 @@ public class RobotConfiguration {
 
         conf.BrakeButton = 6;
 
-        conf.IntakeOperationThrottle = 2;
-        conf.ModeSwitchButton = 5;
+        conf.LoadingThrottle = 2;
+        conf.ActionButton = 5;
 
         conf.HingeManualControlAxis = 2;
         

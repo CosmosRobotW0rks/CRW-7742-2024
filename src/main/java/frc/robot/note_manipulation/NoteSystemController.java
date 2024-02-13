@@ -24,20 +24,19 @@ public class NoteSystemController extends SubsystemBase {
     private NoteSystemConfiguration conf;
 
     private enum Mode {
-        INPUT,
-        SHOOT
+        LOAD,
+        IDLE
     }
 
     boolean current_was_high = false;
 
-    Mode mode = Mode.INPUT;
+    Mode mode = Mode.LOAD;
     Command input;
     Command retract;
     Command shoot;
 
-    Command running_command;
-    HingeJoystickControl hinge_j;
-    boolean mode_btn_pressed;
+    Command action;
+    boolean action_btn_pressed;
 
     public void Init(RobotContainer container, JoystickConfiguration j_conf, NoteSystemConfiguration conf) {
         intake = container.intake;
@@ -53,58 +52,44 @@ public class NoteSystemController extends SubsystemBase {
                 .withTimeout(conf.ConveyorReverseTime)
                 .andThen(new ConveyorSetPower(conveyor, conf.ConveyorPushbackPower, true)
                         .withTimeout(conf.ConveyorPushbackTime));
-        input = new InputOperationCommand(conveyor, shooter, intake, conf, req, j_conf);
+        input = new LoadingCommand(conveyor, shooter, intake, conf, req, j_conf);
 
         shoot = new ShootCommand(conveyor, shooter, conf, j_conf, 10000);
-        hinge_j = new HingeJoystickControl(hinge, j_conf.HingeManualControlAxis, req);
+    }
 
-        hinge_j.min_power = conf.HingeMinPower;
-        hinge_j.max_power = conf.HingeMaxPower;
+    boolean ActionRunning() {
+        if (action.isScheduled())
+            return false;
+
+        return true;
     }
 
     @Override
     public void periodic() {
-        if (!running_command.isScheduled()) {
-            if (mode == Mode.INPUT) {
-                if (hinge_j.isScheduled())
-                    hinge_j.cancel();
-
+        if (!ActionRunning()) { // SPHAGETTI!!!
+            if (mode == Mode.LOAD) {
                 if (!input.isScheduled())
                     input.schedule();
-
-                if (conveyor.GetCurrent() > 4.2)
-                    current_was_high = true;
-                else if (current_was_high && conveyor.GetCurrent() < 3) {
-                    current_was_high = false;
-                    mode = Mode.SHOOT;
-                }
-            } else if (mode == Mode.SHOOT) {
+            } else if (mode == Mode.IDLE) {
                 if (input.isScheduled())
                     input.cancel();
-
-                if (!hinge_j.isScheduled())
-                    hinge_j.schedule();
             }
         }
 
-        if (req.GetButton(j_conf.ModeSwitchButton) && !mode_btn_pressed) {
-            if (mode == Mode.SHOOT)
-                running_command = shoot;
-            else if (mode == Mode.INPUT)
-                running_command = retract;
-            running_command.schedule();
+        if (!action_btn_pressed && req.GetButton(j_conf.ActionButton)) {
+            if (mode == Mode.LOAD)
+                action = retract;
+            else if (mode == Mode.IDLE)
+                action = shoot;
+            action.schedule();
         }
-
-        mode_btn_pressed = req.GetButton(j_conf.ModeSwitchButton);
+        action_btn_pressed = req.GetButton(j_conf.ActionButton);
 
         if (req.GetDPad() == 270)
-            mode = Mode.INPUT;
+            mode = Mode.LOAD;
         else if (req.GetDPad() == 90)
-            mode = Mode.SHOOT;
+            mode = Mode.IDLE;
 
-        if (mode == Mode.INPUT)
-            SmartDashboard.putString("Shooter mode", "INPUT");
-        else if (mode == Mode.SHOOT)
-            SmartDashboard.putString("Shooter mode", "SHOOT");
+        SmartDashboard.putString("Shooter mode", mode.toString());
     }
 }

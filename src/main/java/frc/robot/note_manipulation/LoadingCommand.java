@@ -11,13 +11,13 @@ import frc.robot.note_manipulation.shooter.Conveyor;
 import frc.robot.note_manipulation.shooter.ShooterSetRPM;
 import frc.robot.note_manipulation.shooter.ShooterSetRPM.HoldMode;
 
-public class InputOperationCommand extends ParallelCommandGroup {
-    public InputOperationCommand(Conveyor conveyor, Shooter shooter, Intake intake, NoteSystemConfiguration conf, JoystickRequester req, JoystickConfiguration j_conf) {
-        ConveyorJoystickControl conveyor_j = new ConveyorJoystickControl(conveyor, j_conf.IntakeOperationThrottle, req);
+public class LoadingCommand extends ParallelCommandGroup {
+    public LoadingCommand(Conveyor conveyor, Shooter shooter, Intake intake, NoteSystemConfiguration conf, JoystickRequester req, JoystickConfiguration j_conf) {
+        ConveyorJoystickControl conveyor_j = new ConveyorJoystickControl(conveyor, j_conf.LoadingThrottle, req);
         conveyor_j.min_power = conf.ConveyorMinPower;
         conveyor_j.max_power = conf.ConveyorMaxPower;
 
-        IntakeJoystickControl intake_j = new IntakeJoystickControl(intake, j_conf.IntakeOperationThrottle, req);
+        IntakeJoystickControl intake_j = new IntakeJoystickControl(intake, j_conf.LoadingThrottle, req);
         intake_j.min_power = conf.IntakeMinPower;
         intake_j.max_power = conf.IntakeMaxPower;
 

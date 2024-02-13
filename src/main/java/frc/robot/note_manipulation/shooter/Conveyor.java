@@ -29,9 +29,6 @@ public class Conveyor extends SubsystemBase {
 
     private boolean stalled = false;
 
-    // private CANSparkMax right = new CANSparkMax(AngleCANID,
-    // CANSparkMaxLowLevel.MotorType.kBrushless);
-
     public void Init(Power power) {
         this.power = power;
     }
