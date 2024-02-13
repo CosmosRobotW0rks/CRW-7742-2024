@@ -1,7 +1,6 @@
 package frc.robot.note_manipulation.shooter;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.control.JoystickConfiguration;
 import frc.robot.control.JoystickRequester;
 
 public class ConveyorJoystickControl extends Command {

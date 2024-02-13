@@ -1,7 +1,6 @@
 package frc.robot.note_manipulation.intake;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.control.JoystickConfiguration;
 import frc.robot.control.JoystickRequester;
 
 public class IntakeJoystickControl extends Command {

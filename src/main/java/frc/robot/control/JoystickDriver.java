@@ -1,14 +1,9 @@
 package frc.robot.control;
 
-import frc.robot.drivetrain.VelocityProvider;
-
-import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
 import frc.robot.Robot;
-import frc.robot.RobotContainer;
+import frc.robot.drivetrain.VelocityProvider;
 
 public class JoystickDriver extends VelocityProvider {
     private JoystickConfiguration config;

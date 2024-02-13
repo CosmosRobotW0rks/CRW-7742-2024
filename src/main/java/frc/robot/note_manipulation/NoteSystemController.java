@@ -7,11 +7,10 @@ import frc.robot.RobotContainer;
 import frc.robot.control.JoystickConfiguration;
 import frc.robot.control.JoystickRequester;
 import frc.robot.note_manipulation.intake.Intake;
+import frc.robot.note_manipulation.shooter.Conveyor;
 import frc.robot.note_manipulation.shooter.ConveyorSetPower;
 import frc.robot.note_manipulation.shooter.Hinge;
-import frc.robot.note_manipulation.shooter.HingeJoystickControl;
 import frc.robot.note_manipulation.shooter.Shooter;
-import frc.robot.note_manipulation.shooter.Conveyor;
 
 public class NoteSystemController extends SubsystemBase {
     private Intake intake;
