@@ -29,7 +29,7 @@ public class RollingAverage {
         for (AverageEntry sample : samples)
             average += sample.value;
 
-        return average;
+        return average / samples.size();
     }
 
     private void UpdateSamples() {
