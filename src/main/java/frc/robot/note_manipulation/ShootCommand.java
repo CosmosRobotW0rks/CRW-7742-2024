@@ -22,4 +22,9 @@ public class ShootCommand extends SequentialCommandGroup {
 
         addCommands(spin_up, push_end);
     }
+
+    @Override
+    public InterruptionBehavior getInterruptionBehavior() {
+        return InterruptionBehavior.kCancelIncoming;
+    }
 }
