@@ -29,7 +29,6 @@ public class SwerveDrivetrain extends SubsystemBase {
     public AHRS gyro = new AHRS(SPI.Port.kMXP);
 
     public boolean Enabled = true;
-    private RobotContainer rbt;
 
     private ArrayList<VelocityProvider> velocity_providers = new ArrayList<>();
 
@@ -39,9 +38,6 @@ public class SwerveDrivetrain extends SubsystemBase {
             new Translation2d(-WIDTH, HEIGHT),
             new Translation2d(-WIDTH, -HEIGHT));
 
-    public SwerveDrivetrain(RobotContainer c) {
-        rbt = c;
-    }
 
     public void Setup() {
         UpdateModules();

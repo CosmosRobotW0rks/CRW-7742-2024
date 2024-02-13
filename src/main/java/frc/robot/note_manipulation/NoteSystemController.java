@@ -56,9 +56,13 @@ public class NoteSystemController extends SubsystemBase {
         input = new LoadingCommand(conveyor, shooter, intake, conf, req, j_conf);
 
         shoot = new ShootCommand(conveyor, shooter, conf, j_conf, 10000);
+
+        addChild("Conveyor", conveyor);
+        addChild("Shooter", shooter);
+        addChild("Hinge", hinge);
     }
 
-    boolean ActionRunning() {
+    boolean is_busy() {
         if (action.isScheduled())
             return false;
 
@@ -66,7 +70,7 @@ public class NoteSystemController extends SubsystemBase {
     }
 
     public void Shoot() {
-        if (ActionRunning())
+        if (is_busy())
             return;
 
         action = shoot;
@@ -74,7 +78,7 @@ public class NoteSystemController extends SubsystemBase {
     }
 
     public void Retract() {
-        if (ActionRunning())
+        if (is_busy())
             return;
 
         action = retract;
@@ -95,18 +99,23 @@ public class NoteSystemController extends SubsystemBase {
         return null;
     }
 
+    void schedule_default_command() {
+        Command desired_command = get_default_cmd();
+        if (default_cmd != desired_command)
+            default_cmd.cancel();
+
+        if (!desired_command.isScheduled()) {
+            desired_command.schedule();
+            default_cmd = desired_command;
+        }
+    }
+
     @Override
     public void periodic() {
-        if (!ActionRunning()) { // SPHAGETTI!!!
-            Command desired_command = get_default_cmd();
-            if(default_cmd != desired_command)
-                default_cmd.cancel();
-
-            if(!desired_command.isScheduled()){
-                desired_command.schedule();
-                default_cmd = desired_command;
-            }
-        }
+        if (!is_busy())
+            schedule_default_command();
+        else if (default_cmd.isScheduled())
+            default_cmd.cancel();
 
         if (!action_btn_pressed && req.GetButton(j_conf.ActionButton))
             do_action();

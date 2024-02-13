@@ -33,8 +33,7 @@ public class RobotContainer {
 	public JoystickProvider main;
 
 	void Setup(Robot robot) {
-		drivetrain = new SwerveDrivetrain(this);
-		auto_driver = new WaypointDriver(this);
+		drivetrain = new SwerveDrivetrain();
 
 		power = new Power();
 
@@ -58,6 +57,6 @@ public class RobotContainer {
 		main_joy_driver.SetConfig(RobotConfiguration.MainJoystick());
 
 		drivetrain.AddProvider(main_joy_driver);
-
+		auto_driver = new WaypointDriver(drivetrain);
 	}
 }

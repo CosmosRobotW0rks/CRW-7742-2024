@@ -10,7 +10,7 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class WaypointDriver extends SubsystemBase {
-    public static SwerveDrivetrain drivetrain;
+    public SwerveDrivetrain drivetrain;
     private PIDController xPositionController = new PIDController(6, 0, 0.8);
     private PIDController yPositionController = new PIDController(6, 0, 0.8);
     private PIDController zRotController = new PIDController(0.25, 0, 0.025);
@@ -20,8 +20,8 @@ public class WaypointDriver extends SubsystemBase {
 
     public DirectVelocityProvider vp = new DirectVelocityProvider();
 
-    public WaypointDriver(RobotContainer c){
-        drivetrain = c.drivetrain;
+    public WaypointDriver(SwerveDrivetrain drivetrain){
+        this.drivetrain = drivetrain;
     }
     public void Init() {
         drivetrain.AddProvider(vp);

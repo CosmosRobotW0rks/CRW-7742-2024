@@ -19,8 +19,8 @@ public class Conveyor extends SubsystemBase {
     private int conveyor_l_pdp = 11;
     private int conveyor_r_pdp = 5;
 
-    private RollingAverage CurrentAverage5s = new RollingAverage(5);
-    private RollingAverage CurrentAverage0_5s = new RollingAverage(0.5);
+    private RollingAverage CurrentAverageLong = new RollingAverage(2);
+    private RollingAverage CurrentAverageShort = new RollingAverage(0.3);
 
     private boolean stalled = false;
 
@@ -47,11 +47,16 @@ public class Conveyor extends SubsystemBase {
         double l_current = power.GetCurrent(conveyor_l_pdp);
         double r_current = power.GetCurrent(conveyor_r_pdp);
 
-        CurrentAverage5s.AddSample(GetCurrent());
-        CurrentAverage0_5s.AddSample(GetCurrent());
+        if (output != 0) {
+            CurrentAverageLong.AddSample(GetCurrent() / Math.abs(output));
+            CurrentAverageShort.AddSample(GetCurrent() / Math.abs(output));
+        }
 
-        double avg_short = CurrentAverage0_5s.GetAverage();
-        double avg_long = CurrentAverage5s.GetAverage() * 1.2;
+        double avg_short = CurrentAverageLong.GetAverage();
+        double avg_long = CurrentAverageShort.GetAverage();
+
+        if (avg_short > avg_long * 1.2)
+            System.out.println("!!!!!!!!!!! CONVEYOR STALL !!!!!!!!!!!");
 
         SmartDashboard.putNumber("Left Conveyor Current", l_current);
         SmartDashboard.putNumber("Right Conveyor Current", r_current);
