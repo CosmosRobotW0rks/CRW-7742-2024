@@ -25,6 +25,7 @@ public class NoteSystemConfiguration {
     public double ShootConveyorPower;
     public double ShootConveyorTime;
 
+    public double PreShootHoldTime;
     public double PostShootHoldTime;
 
     public double HingeMinPower;
