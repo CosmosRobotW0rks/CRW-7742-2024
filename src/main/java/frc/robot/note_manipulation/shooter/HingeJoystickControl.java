@@ -8,10 +8,10 @@ public class HingeJoystickControl extends Command {
     private JoystickRequester req;
     private int axis;
 
-    public double min_power = 0;
-    public double max_power = 0.25;
+    public double min_spd = -0.5;
+    public double max_spd = 0.5;
 
-    public HingeJoystickControl(Hinge hinge, int axis, JoystickRequester req){
+    public HingeJoystickControl(Hinge hinge, int axis, JoystickRequester req) {
         this.hinge = hinge;
         this.axis = axis;
         this.req = req;
@@ -20,20 +20,20 @@ public class HingeJoystickControl extends Command {
     }
 
     @Override
-    public void execute(){
-        double coeff = max_power - min_power;
-        double power = req.GetAxis(axis) * coeff + min_power;
-
-        hinge.SetOutput(power);
+    public void execute() {
+        double coeff = max_spd - min_spd;
+        double offset = req.GetAxis(axis) * coeff + min_spd;
+        double target = hinge.GetPosition() + offset;
+        
+        hinge.SetTarget(target);
     }
 
     @Override
-    public void end(boolean interrupted){
-        hinge.SetOutput(0);
+    public void end(boolean interrupted) {
     }
 
     @Override
-    public boolean isFinished(){
+    public boolean isFinished() {
         return false;
     }
 }
