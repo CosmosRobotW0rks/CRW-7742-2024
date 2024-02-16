@@ -11,6 +11,7 @@ import com.revrobotics.CANSparkBase.ControlType;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class SwerveModule {
     private CANSparkMax AngleSpark;
@@ -63,7 +64,7 @@ public class SwerveModule {
     boolean inverted = false;
 
     public void Drive(double Speed) {
-        double actual_speed = Speed * Math.sin(GetDistanceToTargetAngle());
+        double actual_speed = Speed * Math.cos(GetDistanceToTargetAngle());
         driveController.setReference(actual_speed * 250.0 * SPEED_CALIB_VALUE * (inverted ? -1 : 1), ControlType.kVelocity);
     }
 
