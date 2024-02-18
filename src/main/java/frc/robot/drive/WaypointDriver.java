@@ -45,7 +45,7 @@ public class WaypointDriver extends SubsystemBase {
     }
 
     public void DriveToWaypoint() {
-        Pose2d currentPose = drivetrain.OdometryOutPose;
+        Pose2d currentPose = drivetrain.GetLocalizedPose();
 
         double xPwr = -xPositionController.calculate(currentPose.getX(), TargetPose.getX());
         double yPwr = yPositionController.calculate(currentPose.getY(), TargetPose.getY());

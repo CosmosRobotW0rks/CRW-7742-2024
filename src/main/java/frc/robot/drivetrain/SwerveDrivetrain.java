@@ -6,6 +6,7 @@ import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -38,7 +39,6 @@ public class SwerveDrivetrain extends SubsystemBase {
             new Translation2d(-WIDTH, HEIGHT),
             new Translation2d(-WIDTH, -HEIGHT));
 
-
     public void Setup() {
         UpdateModules();
         odometry = new SwerveDriveOdometry(kinematics, gyroAngle, positions);
@@ -50,11 +50,19 @@ public class SwerveDrivetrain extends SubsystemBase {
 
     void Drive() {
         Translation3d combined = new Translation3d();
-        for (VelocityProvider p : velocity_providers){
-            combined = new Translation3d(
-                    combined.getX() + (p.GetEnabledAxes()[0] ? p.GetVelocity().getX() : 0),
-                    combined.getY() + (p.GetEnabledAxes()[1] ? p.GetVelocity().getY() : 0),
-                    combined.getZ() + (p.GetEnabledAxes()[2] ? p.GetVelocity().getZ() : 0));
+        Translation3d combined_non_field_oriented = new Translation3d();
+
+        for (VelocityProvider p : velocity_providers) {
+            if (p.field_oriented)
+                combined = new Translation3d(
+                        combined.getX() + (p.GetEnabledAxes()[0] ? p.GetVelocity().getX() : 0),
+                        combined.getY() + (p.GetEnabledAxes()[1] ? p.GetVelocity().getY() : 0),
+                        combined.getZ() + (p.GetEnabledAxes()[2] ? p.GetVelocity().getZ() : 0));
+            else
+                combined_non_field_oriented = new Translation3d(
+                        combined.getX() + (p.GetEnabledAxes()[0] ? p.GetVelocity().getX() : 0),
+                        combined.getY() + (p.GetEnabledAxes()[1] ? p.GetVelocity().getY() : 0),
+                        combined.getZ() + (p.GetEnabledAxes()[2] ? p.GetVelocity().getZ() : 0));
         }
 
         ChassisSpeeds fieldOrientedXYSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(-combined.getX(),
@@ -62,7 +70,12 @@ public class SwerveDrivetrain extends SubsystemBase {
                 combined.getZ(),
                 gyroAngle); // Gyro is upside down?
 
-        SwerveModuleState[] states = kinematics.toSwerveModuleStates(fieldOrientedXYSpeeds);
+        ChassisSpeeds total = new ChassisSpeeds(
+                fieldOrientedXYSpeeds.vxMetersPerSecond + combined_non_field_oriented.getX(),
+                fieldOrientedXYSpeeds.vyMetersPerSecond + combined_non_field_oriented.getY(),
+                fieldOrientedXYSpeeds.omegaRadiansPerSecond - combined_non_field_oriented.getZ());
+
+        SwerveModuleState[] states = kinematics.toSwerveModuleStates(total);
         // Set angles
         TL.SetTarget(states[0].angle.getDegrees());
         TR.SetTarget(states[1].angle.getDegrees());
@@ -91,6 +104,8 @@ public class SwerveDrivetrain extends SubsystemBase {
     SwerveDriveOdometry odometry;
     public Pose2d OdometryOutPose;
 
+    public Transform2d OdometryOffset = new Transform2d();
+
     void Odometry() {
         gyroAngle = Rotation2d.fromDegrees(-gyro.getFusedHeading());
         odometry.update(gyroAngle, positions);
@@ -101,7 +116,12 @@ public class SwerveDrivetrain extends SubsystemBase {
     }
 
     public void SetOdomPose(Pose2d pose, Rotation2d rot) {
+        pose = new Pose2d(pose.getTranslation(), rot); //We do NOT want to reset the gyro angle, the NavX is more than enough!
         odometry.resetPosition(rot, positions, pose);
+    }
+
+    public Pose2d GetLocalizedPose(){
+        return OdometryOutPose.transformBy(OdometryOffset);
     }
 
     void UpdateModules() {

@@ -9,6 +9,8 @@ public abstract class VelocityProvider {
     boolean y_enabled = false;
     boolean rot_enabled = false;
 
+    boolean field_oriented = true;
+
     public boolean[] GetEnabledAxes() {
         return new boolean[] { x_enabled, y_enabled, rot_enabled };
     }
@@ -23,5 +25,9 @@ public abstract class VelocityProvider {
         x_enabled = enabled;
         y_enabled = enabled;
         rot_enabled = enabled;
+    }
+
+    public void SetFieldOriented(boolean field_oriented){
+        this.field_oriented = field_oriented;
     }
 }

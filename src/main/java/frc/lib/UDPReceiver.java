@@ -12,8 +12,9 @@ public class UDPReceiver {
     private byte[] buffer = new byte[4096];
     private DatagramPacket last_packet;
 
-    public UDPReceiver(int port, double read_rate) throws SocketException {
+    public UDPReceiver(int port, double read_rate, double timeout) throws SocketException {
         sock = new DatagramSocket(port);
+        sock.setSoTimeout((int)(timeout * 1000));
         this.read_rate = read_rate;
         last_packet = new DatagramPacket(buffer, buffer.length);
 
