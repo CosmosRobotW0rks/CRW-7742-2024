@@ -15,9 +15,9 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.RobotContainer;
 
 public class SwerveDrivetrain extends SubsystemBase {
     private final double WIDTH = 11.2; // Inches? TODO Add dimensions
@@ -39,9 +39,13 @@ public class SwerveDrivetrain extends SubsystemBase {
             new Translation2d(-WIDTH, HEIGHT),
             new Translation2d(-WIDTH, -HEIGHT));
 
+    private Field2d odom_display = new Field2d();
+
     public void Setup() {
         UpdateModules();
         odometry = new SwerveDriveOdometry(kinematics, gyroAngle, positions);
+
+        SmartDashboard.putData("Odom", odom_display);
     }
 
     public void AddProvider(VelocityProvider p) {
@@ -113,15 +117,19 @@ public class SwerveDrivetrain extends SubsystemBase {
         OdometryOutPose = new Pose2d(
                 new Translation2d(OdometryOutPose.getTranslation().getX(), -OdometryOutPose.getTranslation().getY()),
                 OdometryOutPose.getRotation());
+
     }
 
     public void SetOdomPose(Pose2d pose, Rotation2d rot) {
-        pose = new Pose2d(pose.getTranslation(), rot); //We do NOT want to reset the gyro angle, the NavX is more than enough!
+        //pose = new Pose2d(pose.getTranslation(), rot); // We do NOT want to reset the gyro angle, the NavX is more than
+                                                       // enough!
         odometry.resetPosition(rot, positions, pose);
     }
 
-    public Pose2d GetLocalizedPose(){
-        return OdometryOutPose.transformBy(OdometryOffset);
+    public Pose2d GetLocalizedPose() {
+        Pose2d pose = OdometryOutPose.transformBy(OdometryOffset);
+        SmartDashboard.putString("Robot loc", "x: " + pose.getX() + ", y: " + pose.getY());
+        return pose;
     }
 
     void UpdateModules() {
@@ -148,7 +156,11 @@ public class SwerveDrivetrain extends SubsystemBase {
                 : 0;
 
         SmartDashboard.putString("Odom Pose", ("x: " + x_formatted + ", y: " + Y_formatted));
+
+                SmartDashboard.putString("Odom Localized", ("x: " + GetLocalizedPose().getX() + ", y: " + GetLocalizedPose().getY()));
+
         SmartDashboard.putNumber("Gyro angle", gyroAngle.getDegrees());
+        odom_display.setRobotPose(GetLocalizedPose());
     }
 
     @Override
