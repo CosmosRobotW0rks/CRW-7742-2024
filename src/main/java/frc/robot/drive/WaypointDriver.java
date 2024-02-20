@@ -1,6 +1,7 @@
 package frc.robot.drive;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.lib.RollingAverage;
 import frc.robot.RobotContainer;
 import frc.robot.drivetrain.DirectVelocityProvider;
 import frc.robot.drivetrain.SwerveDrivetrain;
@@ -11,18 +12,19 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class WaypointDriver extends SubsystemBase {
     public SwerveDrivetrain drivetrain;
-    private PIDController xPositionController = new PIDController(6, 0, 0.8);
-    private PIDController yPositionController = new PIDController(6, 0, 0.8);
-    private PIDController zRotController = new PIDController(0.25, 0, 0.025);
+    private PIDController xPositionController = new PIDController(3, 0, 0.08);
+    private PIDController yPositionController = new PIDController(3, 0, 0.08);
+    // private PIDController zRotController = new PIDController(0.25, 0, 0.025);
 
     private Pose2d TargetPose;
     public boolean AtTarget = false;
 
     public DirectVelocityProvider vp = new DirectVelocityProvider();
 
-    public WaypointDriver(SwerveDrivetrain drivetrain){
+    public WaypointDriver(SwerveDrivetrain drivetrain) {
         this.drivetrain = drivetrain;
     }
+
     public void Init() {
         drivetrain.AddProvider(vp);
     }
@@ -47,27 +49,32 @@ public class WaypointDriver extends SubsystemBase {
     public void DriveToWaypoint() {
         Pose2d currentPose = drivetrain.GetLocalizedPose();
 
-        double xPwr = -xPositionController.calculate(currentPose.getX(), TargetPose.getX());
+        double xPwr = xPositionController.calculate(currentPose.getX(), TargetPose.getX());
         double yPwr = yPositionController.calculate(currentPose.getY(), TargetPose.getY());
 
-        xPwr = Math.copySign(Math.min(Math.abs(xPwr), 0.2), xPwr);
-        yPwr = Math.copySign(Math.min(Math.abs(yPwr), 0.2), yPwr);
+        xPwr = Math.copySign(Math.min(Math.abs(xPwr), 2), xPwr);
+        yPwr = Math.copySign(Math.min(Math.abs(yPwr), 2), yPwr);
 
         double xDiff = currentPose.getX() - TargetPose.getX();
         double yDiff = currentPose.getY() - TargetPose.getY();
+
         double diff = Math.sqrt(xDiff * xDiff + yDiff * yDiff);
 
         double currentAngle = drivetrain.gyroAngle.getRadians();
         double targetAngle = TargetPose.getRotation().getRadians();
 
-        double rot = -zRotController.calculate(currentAngle, targetAngle);
-        rot = Math.copySign(Math.min(Math.abs(rot), 0.05), rot);
-        rot = Math.abs(rot) > 0.025 ? rot : 0;
+        double rot = currentAngle - targetAngle;// -zRotController.calculate(currentAngle, targetAngle);
+        rot = rot % (2 * Math.PI);
+        rot = (rot > Math.PI) ? (rot - 2 * Math.PI) : rot;
+        rot = (rot < -Math.PI) ? (rot + 2 * Math.PI) : rot;
+        rot = Math.abs(rot) >= 0.0625 ? rot : 0;
+        rot = rot * 0.125;
+        rot = Math.copySign(Math.min(Math.abs(rot), 0.025), rot);
 
-        if (diff > 0.025 && rot <= 0.45)
-            vp.SetVelocity(new Translation3d(xPwr, yPwr, rot));
+        if (diff > 0.025 && Math.abs(rot) <= 0.45)
+            vp.SetVelocity(new Translation3d(xPwr, yPwr, -rot));
         else if (rot != 0)
-            vp.SetVelocity(new Translation3d(0, 0, rot));
+            vp.SetVelocity(new Translation3d(0, 0, -rot));
         else {
             AtTarget = true;
             vp.SetVelocity(new Translation3d(0, 0, 0));
