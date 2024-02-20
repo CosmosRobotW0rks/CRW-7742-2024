@@ -5,6 +5,7 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.Joystick;
+import frc.robot.apriltag.AprilTagUDPReceiver;
 import frc.robot.control.JoystickDriver;
 import frc.robot.control.JoystickProvider;
 import frc.robot.drive.WaypointDriver;
@@ -20,6 +21,8 @@ public class RobotContainer {
 	public SwerveDrivetrain drivetrain;
 	public WaypointDriver auto_driver;
 	public JoystickDriver main_joy_driver;
+
+	public AprilTagUDPReceiver apriltag;
 
 	public Power power;
 
@@ -40,6 +43,8 @@ public class RobotContainer {
 		main = new JoystickProvider(new Joystick(0), 0.05);
 		main_joy_driver = new JoystickDriver();
 
+		apriltag = new AprilTagUDPReceiver(drivetrain);
+
 		conveyor = new Conveyor();
 		shooter = new Shooter();
 		intake = new Intake();
@@ -58,5 +63,7 @@ public class RobotContainer {
 
 		drivetrain.AddProvider(main_joy_driver);
 		auto_driver = new WaypointDriver(drivetrain);
+
+		auto_driver.Init();;
 	}
 }
