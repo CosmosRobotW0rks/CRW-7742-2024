@@ -8,7 +8,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Intake extends SubsystemBase {
     //private boolean reverse;
 
-    private double output = 1;
+    private double output = 0;
 
     private VictorSPX front = new VictorSPX(41);
     private VictorSPX back = new VictorSPX(42);
