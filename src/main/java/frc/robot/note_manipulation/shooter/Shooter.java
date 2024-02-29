@@ -54,6 +54,13 @@ public class Shooter extends SubsystemBase {
         return l_diff + r_diff < 50;
     }
 
+    public double GetRPM() {
+        double l_current = left_encoder.getVelocity();
+        double r_current = -right_encoder.getVelocity();
+
+        return (l_current + r_current) / 2;
+    }
+
     @Override
     public void periodic() {
         left_controller.setReference(rpm, ControlType.kVelocity);
