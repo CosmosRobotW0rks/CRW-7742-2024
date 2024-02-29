@@ -18,6 +18,13 @@ public class WaypointDriver extends SubsystemBase {
 
     private Pose2d TargetPose;
     public boolean AtTarget = false;
+    public boolean RotatedToTarget = false;
+
+    public double x_speed = 0.5;
+    public double y_speed = 0.5;
+    public double rot_speed = 0.03125;
+    public double precision = 0.15;
+    public double trans_p_gain = 3;
 
     public DirectVelocityProvider vp = new DirectVelocityProvider();
 
@@ -47,13 +54,16 @@ public class WaypointDriver extends SubsystemBase {
     }
 
     public void DriveToWaypoint() {
+        xPositionController.setP(trans_p_gain);
+        yPositionController.setP(trans_p_gain);
+
         Pose2d currentPose = drivetrain.GetLocalizedPose();
 
         double xPwr = xPositionController.calculate(currentPose.getX(), TargetPose.getX());
         double yPwr = yPositionController.calculate(currentPose.getY(), TargetPose.getY());
 
-        xPwr = Math.copySign(Math.min(Math.abs(xPwr), 2), xPwr);
-        yPwr = Math.copySign(Math.min(Math.abs(yPwr), 2), yPwr);
+        xPwr = Math.copySign(Math.min(Math.abs(xPwr), x_speed), xPwr);
+        yPwr = Math.copySign(Math.min(Math.abs(yPwr), y_speed), yPwr);
 
         double xDiff = currentPose.getX() - TargetPose.getX();
         double yDiff = currentPose.getY() - TargetPose.getY();
@@ -67,11 +77,15 @@ public class WaypointDriver extends SubsystemBase {
         rot = rot % (2 * Math.PI);
         rot = (rot > Math.PI) ? (rot - 2 * Math.PI) : rot;
         rot = (rot < -Math.PI) ? (rot + 2 * Math.PI) : rot;
-        rot = Math.abs(rot) >= 0.0625 ? rot : 0;
-        rot = rot * 0.125;
-        rot = Math.copySign(Math.min(Math.abs(rot), 0.025), rot);
 
-        if (diff > 0.025 && Math.abs(rot) <= 0.45)
+        double rot_diff = rot;
+        rot = Math.abs(rot) >= 0.0125 ? rot : 0;
+        rot = rot * 0.125;
+        rot = Math.copySign(Math.min(Math.abs(rot), rot_speed), rot);
+
+        RotatedToTarget = Math.abs(rot_diff) <= 0.03125;
+
+        if (diff > precision && Math.abs(rot_diff) <= 0.15)
             vp.SetVelocity(new Translation3d(xPwr, yPwr, -rot));
         else if (rot != 0)
             vp.SetVelocity(new Translation3d(0, 0, -rot));
@@ -91,5 +105,6 @@ public class WaypointDriver extends SubsystemBase {
 
     public void Disengage() {
         vp.SetActive(false);
+        TargetPose = null;
     }
 }
