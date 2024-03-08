@@ -13,9 +13,11 @@ import frc.robot.drive.WaypointDriver;
 import frc.robot.drivetrain.SwerveDrivetrain;
 import frc.robot.leds.LedUDPSender;
 import frc.robot.note_manipulation.NoteSystemController;
+import frc.robot.note_manipulation.ShooterJoystickOverride;
 import frc.robot.note_manipulation.intake.Intake;
 import frc.robot.note_manipulation.shooter.Hinge;
 import frc.robot.note_manipulation.shooter.Shooter;
+import frc.robot.pneumatics.Pneumatics;
 import frc.robot.note_manipulation.shooter.Conveyor;
 import frc.robot.power.Power;
 
@@ -35,9 +37,12 @@ public class RobotContainer {
 	public Intake intake;
 	public Hinge hinge;
 
+	public Pneumatics pneumatics;
+
 	public NoteSystemController note_c;
 
 	public JoystickProvider main;
+	public JoystickProvider secondary;
 
 	void Setup(Robot robot) {
 		drivetrain = new SwerveDrivetrain();
@@ -45,10 +50,12 @@ public class RobotContainer {
 		power = new Power();
 
 		Joystick j = new Joystick(0);
+		//Joystick j2 = new Joystick(1);
 
 		main = new JoystickProvider(j, 0.05);
-		main_joy_driver = new JoystickDriver();
+		//secondary = new JoystickProvider(j, 0.05);
 
+		main_joy_driver = new JoystickDriver();
 		commands = new JoystickCommands();
 
 		apriltag = new AprilTagUDPReceiver(drivetrain);
@@ -59,6 +66,8 @@ public class RobotContainer {
 		intake = new Intake();
 		hinge = new Hinge();
 
+		pneumatics = new Pneumatics();
+
 		note_c = new NoteSystemController();
 
 		drivetrain.Setup();
@@ -67,15 +76,19 @@ public class RobotContainer {
 		shooter.Init();
 		conveyor.Init(power);
 
-		note_c.Init(this, RobotConfiguration.MainJoystick(), RobotConfiguration.GetNoteSystemConfiguration());
+		note_c.Init(this, RobotConfiguration.GetNoteSystemConfiguration(), main, RobotConfiguration.MainJoystick());
 		main_joy_driver.SetConfig(RobotConfiguration.MainJoystick());
 
 		drivetrain.AddProvider(main_joy_driver);
 		auto_driver = new WaypointDriver(drivetrain);
 
+		pneumatics.Init();
+		pneumatics.SetCompressor(false);
+
 		auto_driver.Init();
 		leds.Init();
 
-		commands.Init(j, RobotConfiguration.MainJoystick(), this);
+		commands.Init(j, main, RobotConfiguration.MainJoystick(), this);
+		//commands.Init(j2, secondary, RobotConfiguration.SecondaryJoystick(), this);
 	}
 }

@@ -22,7 +22,7 @@ public class Conveyor extends SubsystemBase {
     private RollingAverage CurrentAverageLong = new RollingAverage(2);
     private RollingAverage CurrentAverageShort = new RollingAverage(0.15);
 
-    private RollingAverage StallAverage = new RollingAverage(0.75);
+    private RollingAverage StallAverage = new RollingAverage(1);
 
     public boolean Stalled = false;
 
@@ -57,9 +57,9 @@ public class Conveyor extends SubsystemBase {
         double avg_short = CurrentAverageShort.GetAverage();
         double avg_long = CurrentAverageLong.GetAverage();
 
-        StallAverage.AddSample((avg_short > avg_long * 1.2) ? 1 : 0);
+        StallAverage.AddSample((avg_short > avg_long * 1.28) ? 1 : 0);
 
-        Stalled = StallAverage.GetAverage() > 0.75;
+        Stalled = StallAverage.GetAverage() > 0.9;
 
         SmartDashboard.putNumber("Left Conveyor Current", l_current);
         SmartDashboard.putNumber("Right Conveyor Current", r_current);

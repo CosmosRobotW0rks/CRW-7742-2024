@@ -46,14 +46,21 @@ public class WaypointDriver extends SubsystemBase {
         SmartDashboard.putBoolean("Autopilot Active", TargetPose != null);
     }
 
+    public boolean IsEngaged() {
+        return TargetPose != null;
+    }
+
     public void Goto(Pose2d target) {
         TargetPose = target;
         AtTarget = false;
+        RotatedToTarget = false;
 
         Engage();
     }
 
     public void DriveToWaypoint() {
+        vp.SetActive(true);
+
         xPositionController.setP(trans_p_gain);
         yPositionController.setP(trans_p_gain);
 
@@ -61,6 +68,8 @@ public class WaypointDriver extends SubsystemBase {
 
         double xPwr = xPositionController.calculate(currentPose.getX(), TargetPose.getX());
         double yPwr = yPositionController.calculate(currentPose.getY(), TargetPose.getY());
+
+        SmartDashboard.putString("Driver out", xPwr + ", " + yPwr);
 
         xPwr = Math.copySign(Math.min(Math.abs(xPwr), x_speed), xPwr);
         yPwr = Math.copySign(Math.min(Math.abs(yPwr), y_speed), yPwr);
@@ -85,14 +94,10 @@ public class WaypointDriver extends SubsystemBase {
 
         RotatedToTarget = Math.abs(rot_diff) <= 0.03125;
 
-        if (diff > precision && Math.abs(rot_diff) <= 0.15)
-            vp.SetVelocity(new Translation3d(xPwr, yPwr, -rot));
-        else if (rot != 0)
-            vp.SetVelocity(new Translation3d(0, 0, -rot));
-        else {
-            AtTarget = true;
-            vp.SetVelocity(new Translation3d(0, 0, 0));
-        }
+        SmartDashboard.putNumber("rot diff", Math.abs(rot_diff));
+
+        vp.SetVelocity(new Translation3d(xPwr, yPwr, -rot));
+        AtTarget = diff < precision;
     }
 
     public boolean Engage() {

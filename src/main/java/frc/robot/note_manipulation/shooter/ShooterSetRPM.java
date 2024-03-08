@@ -41,4 +41,8 @@ public class ShooterSetRPM extends Command {
             return shooter.AtTargetRPM();
         return false;
     }
+
+    public void SetRPM(double rpm){
+        this.RPM = rpm;
+    }
 }

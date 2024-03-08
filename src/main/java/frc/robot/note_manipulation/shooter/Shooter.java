@@ -28,14 +28,14 @@ public class Shooter extends SubsystemBase {
         right_encoder = right.getEncoder();
 
         left_controller = left.getPIDController();
-        left_controller.setP(1.5e-5);
-        left_controller.setI(5e-7);
+        left_controller.setP(0.25e-5);
+        left_controller.setI(3e-7);
         left_controller.setD(0.0);
         left_controller.setOutputRange(-1, 1);
 
         right_controller = right.getPIDController();
-        right_controller.setP(1.5e-5);
-        right_controller.setI(5e-7);
+        right_controller.setP(0.25e-5);
+        right_controller.setI(3e-7);
         right_controller.setD(0.0);
         right_controller.setOutputRange(-1, 1);
     }
@@ -51,7 +51,7 @@ public class Shooter extends SubsystemBase {
         double l_diff = Math.abs(l_current - rpm);
         double r_diff = Math.abs(-r_current - rpm);
 
-        return l_diff + r_diff < 50;
+        return l_diff + r_diff < 250;
     }
 
     public double GetRPM() {

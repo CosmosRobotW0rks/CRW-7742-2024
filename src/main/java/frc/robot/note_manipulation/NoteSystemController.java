@@ -3,11 +3,14 @@ package frc.robot.note_manipulation;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Date;
+
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 import frc.robot.control.JoystickConfiguration;
+import frc.robot.control.JoystickProvider;
 import frc.robot.control.JoystickRequester;
 import frc.robot.note_manipulation.intake.Intake;
 import frc.robot.note_manipulation.shooter.Conveyor;
@@ -31,22 +34,28 @@ public class NoteSystemController extends SubsystemBase {
     private NoteSystemConfiguration conf;
 
     public enum Mode {
-        IDLE,
+        MANUAL,
         LOAD_FROM_HP,
         LOAD,
         WAIT,
+        AMP
     }
 
-    boolean detect_note = false;
+    boolean detect_note = true;
     boolean auto = false;
     boolean reset_on_shoot = true;
 
-    Mode mode = Mode.IDLE;
+    Mode mode = Mode.MANUAL;
     Command load;
     Command load_hp;
     Command retract;
-    Command shoot;
-    Command spin_up;
+    ShootCommand shoot;
+    Command shoot_amp;
+    Command amp_mode;
+    ShooterSetRPM spin_up;
+
+    Command stop;
+
     HingeGoto hinge_motion;
 
     ArrayList<Command> cmd_queue = new ArrayList<>();
@@ -61,29 +70,36 @@ public class NoteSystemController extends SubsystemBase {
 
     int prev_dpad = 0;
 
-    public void Init(RobotContainer container, JoystickConfiguration j_conf, NoteSystemConfiguration conf) {
+    double time_since_last_cmd;
+
+    public void Init(RobotContainer container, NoteSystemConfiguration conf, JoystickProvider p,
+            JoystickConfiguration j_conf) {
         intake = container.intake;
         conveyor = container.conveyor;
         shooter = container.shooter;
         hinge = container.hinge;
 
-        req = new JoystickRequester(container.main);
-        this.j_conf = j_conf;
         this.conf = conf;
+        this.j_conf = j_conf;
+        this.req = new JoystickRequester(p);
 
-        retract = new LoadingCommand(conveyor, shooter, intake, conf, 1)
-                .withTimeout(0.5)
-                .andThen(new LoadingCommand(conveyor, shooter, intake, conf, 0)
-                        .withTimeout(0.75))
-                .andThen(new ConveyorSetPower(conveyor, conf.ConveyorReversePower, true)
-                        .withTimeout(conf.ConveyorReverseTime))
+        retract = new ConveyorSetPower(conveyor, conf.ConveyorFeedforwardTime, true)
+                .withTimeout(conf.ConveyorFeedforwardTime)
+                .andThen(new ConveyorSetPower(conveyor, conf.ConveyorReversePower, true))
+                .withTimeout(conf.ConveyorReverseTime)
                 .andThen(new ConveyorSetPower(conveyor, conf.ConveyorPushbackPower, true)
                         .withTimeout(conf.ConveyorPushbackTime));
         load = new LoadingCommand(conveyor, shooter, intake, conf, req, j_conf);
         load_hp = new HumanPlayerLoading(conveyor, shooter, intake, conf, req, j_conf);
 
-        shoot = new ShootCommand(conveyor, shooter, hinge, conf, 3000, 20 * DEG2RAD);
-        spin_up = new ShooterSetRPM(shooter, 3000, HoldMode.None);
+        shoot = new ShootCommand(conveyor, shooter, hinge, conf, 3500);
+        shoot_amp = new AmpDrop(hinge, shooter, conveyor, conf);
+
+        amp_mode = new ShooterSetRPM(shooter, 1000, HoldMode.Indefinite);
+
+        spin_up = new ShooterSetRPM(shooter, 3500, HoldMode.None);
+
+        stop = new ShooterSetRPM(shooter, 0, HoldMode.RPMTarget).alongWith(new ConveyorSetPower(conveyor, 0, false));
 
         hinge_motion = new HingeGoto(hinge, 0);
 
@@ -113,6 +129,14 @@ public class NoteSystemController extends SubsystemBase {
             SetMode(Mode.LOAD);
     }
 
+    public void ShootAtAmp() {
+        queue(shoot_amp);
+        execute();
+
+        if (reset_on_shoot)
+            SetMode(Mode.LOAD);
+    }
+
     public void SpinUp() {
         queue(spin_up);
         execute();
@@ -125,9 +149,28 @@ public class NoteSystemController extends SubsystemBase {
 
     }
 
+    public void Stop(){
+        queue(stop);
+        execute();
+    }
+
     public void SetMode(Mode mode) {
         transition_to(this.mode, mode);
         this.mode = mode;
+    }
+
+    public void SetShootHingeTarget(double target) {
+        hinge_target = target;
+    }
+
+    public double GetShootHingeTarget() {
+        return hinge_target;
+    }
+
+    public void SetShootRPMTarget(double target) {
+        System.out.println("Setting target shoot RPM: " + target);
+        shoot.SetRPM(target);
+        spin_up.SetRPM(target);
     }
 
     void hinge_goto(double degrees) {
@@ -157,18 +200,22 @@ public class NoteSystemController extends SubsystemBase {
         if (IsBusy())
             return;
 
-        hinge_target = Math.min(Math.max(hinge_target, 0), 150);
+        hinge_target = Math.min(Math.max(hinge_target, 0), 160);
 
         if (mode == Mode.LOAD) {
             if (hinge.GetTarget() >= 0.05)
                 hinge_goto(0);
         } else if (mode == Mode.LOAD_FROM_HP) {
-            double target = 150;
+            double target = 160;
             if (Math.abs(hinge.GetTarget() - target * DEG2RAD) >= 0.05)
                 hinge_goto(target);
         } else if (mode == Mode.WAIT) {
             if (hinge.GetTarget() != hinge_target * DEG2RAD)
                 hinge_goto(hinge_target);
+        } else if (mode == Mode.AMP) {
+            double target = 0;
+            if (Math.abs(hinge.GetTarget() - target * DEG2RAD) >= 0.05)
+                hinge_goto(target);
         }
     }
 
@@ -184,11 +231,13 @@ public class NoteSystemController extends SubsystemBase {
         action.schedule();
     }
 
-    void do_action() {
+    void DoAction() {
         if (mode == Mode.LOAD)
             Retract();
         else if (mode == Mode.WAIT)
             Shoot();
+        else if (mode == Mode.AMP)
+            ShootAtAmp();
     }
 
     Command get_default_cmd() {
@@ -196,28 +245,37 @@ public class NoteSystemController extends SubsystemBase {
             return load;
         else if (mode == Mode.LOAD_FROM_HP)
             return load_hp;
+        else if (mode == Mode.AMP)
+            return amp_mode;
 
         return null;
     }
 
     void transition_to(Mode from, Mode to) {
-        if (from == Mode.LOAD) {
-            has_stalled = false;
+        if (from == Mode.LOAD && to != Mode.MANUAL) {
             Retract();
+        }
+
+        if(to == Mode.LOAD){
+            time_since_last_cmd = Timer.getFPGATimestamp();
         }
 
         if (to == Mode.WAIT) {
             SpinUp();
         }
+
+        if(to == Mode.MANUAL){
+            Stop();
+        }
     }
 
     void prev_mode() {
         Mode next = Mode.LOAD_FROM_HP;
-        if (mode == Mode.IDLE)
+        if (mode == Mode.MANUAL)
             next = Mode.LOAD_FROM_HP;
 
         if (mode == Mode.LOAD)
-            next = Mode.IDLE;
+            next = Mode.MANUAL;
 
         if (mode == Mode.WAIT)
             next = Mode.LOAD;
@@ -228,14 +286,14 @@ public class NoteSystemController extends SubsystemBase {
     void next_mode() {
         Mode next = Mode.WAIT;
 
-        if (mode == Mode.IDLE)
+        if (mode == Mode.MANUAL)
             next = Mode.LOAD;
 
         if (mode == Mode.LOAD)
             next = Mode.WAIT;
 
         if (mode == Mode.LOAD_FROM_HP)
-            next = Mode.IDLE;
+            next = Mode.MANUAL;
 
         SetMode(next);
     }
@@ -250,13 +308,12 @@ public class NoteSystemController extends SubsystemBase {
         else if (default_cmd != null && default_cmd.isScheduled())
             default_cmd.cancel();
 
-        if (detect_note && mode == Mode.LOAD) {
-            if (conveyor.Stalled)
+        if (detect_note && mode == Mode.LOAD && !IsBusy()) {
+            if (conveyor.Stalled && Timer.getFPGATimestamp() - time_since_last_cmd > 0.5)
                 has_stalled = true;
 
             if (has_stalled && !conveyor.Stalled) {
                 has_stalled = false;
-                Retract();
                 SetMode(Mode.WAIT);
             }
         }
@@ -264,26 +321,6 @@ public class NoteSystemController extends SubsystemBase {
         if (!IsBusy() && mode == Mode.WAIT && auto)
             Shoot();
 
-        req.SetRumble((mode == Mode.WAIT && (new Date().getTime() % 1000 < 250)) ? 1 : 0);
-        if (!action_btn_pressed && req.GetButton(j_conf.ActionButton))
-            do_action();
-        action_btn_pressed = req.GetButton(j_conf.ActionButton);
-
         SmartDashboard.putString("Shooter mode", mode.toString());
-
-        int dpad = req.GetDPad();
-
-        if (dpad == prev_dpad)
-            return;
-        prev_dpad = dpad;
-
-        if (dpad == 270)
-            prev_mode();
-        else if (dpad == 90)
-            next_mode();
-        else if (dpad == 0)
-            hinge_target += 5;
-        else if (dpad == 180)
-            hinge_target -= 5;
     }
 }

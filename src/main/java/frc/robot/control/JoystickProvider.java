@@ -17,9 +17,12 @@ public class JoystickProvider extends SubsystemBase {
         this.deadzone = deadzone;
     }
 
-    public double GetAxisWithDeadzone(int axis){
+    public double GetAxisWithDeadzone(int axis) {
+        if (axis == -1)
+            return 0;
+            
         double val = joystick.getRawAxis(axis);
-        if(val > deadzone)
+        if (val > deadzone)
             return val - deadzone;
         else if (val < -deadzone)
             return val + deadzone;
@@ -27,16 +30,19 @@ public class JoystickProvider extends SubsystemBase {
             return 0;
     }
 
-    public boolean GetButton(int axis){
+    public boolean GetButton(int axis) {
+        if (axis == -1)
+            return false;
+
         return joystick.getRawButton(axis);
     }
 
-    public int GetDPad(){
+    public int GetDPad() {
         return joystick.getPOV();
     }
 
     @Override
-    public void periodic(){
+    public void periodic() {
         double combined_rumble = 0;
         for (JoystickRequester req : requesters) {
             combined_rumble += req.GetRumble();

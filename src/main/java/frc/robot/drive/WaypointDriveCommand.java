@@ -10,12 +10,13 @@ public class WaypointDriveCommand extends Command {
 
     private final WaypointDriver Driver;
     private final SwerveDrivetrain Drivetrain;
-    private final Pose2d Target;
     private final boolean stay;
     private final double x_s;
     private final double y_s;
     private final double precision;
     private final double p_gain;
+
+    private Pose2d Target;
 
     public WaypointDriveCommand(RobotContainer c, Pose2d target, boolean stay, double trans_speed, double precision,
             double p_gain) {
@@ -75,4 +76,7 @@ public class WaypointDriveCommand extends Command {
         return Driver.AtTarget;
     }
 
+    public void SetPose(Pose2d target) {
+        Target = target;
+    }
 }

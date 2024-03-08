@@ -15,6 +15,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -35,6 +36,16 @@ public class SwerveDrivetrain extends SubsystemBase {
     boolean homed = false;
     private ArrayList<VelocityProvider> velocity_providers = new ArrayList<>();
 
+    double x_spd = 0;
+    double y_spd = 0;
+    double th_spd = 0;
+
+    double max_x_accel = 15;
+    double max_y_accel = 15;
+    double max_th_accel = 1;
+
+    double old_time;
+
     private SwerveDriveKinematics kinematics = new SwerveDriveKinematics(
             new Translation2d(WIDTH, HEIGHT),
             new Translation2d(WIDTH, -HEIGHT),
@@ -47,8 +58,8 @@ public class SwerveDrivetrain extends SubsystemBase {
         UpdateModules();
         odometry = new SwerveDriveOdometry(kinematics, gyroAngle, positions);
 
-        odom_display.setRobotPose(new Pose2d());
-        SmartDashboard.putData("Odom", odom_display);
+        odom_display.setRobotPose(new Pose2d(new Translation2d(), new Rotation2d()));
+        SmartDashboard.putData("Field", odom_display);
         SmartDashboard.putData("Home", new SwerveSetDegrees(this, 0, 0, 0, 0));
         SmartDashboard.putData("Cross", new SwerveSetDegrees(this, 45, -45, -45, 45));
     }
@@ -59,32 +70,47 @@ public class SwerveDrivetrain extends SubsystemBase {
 
     void Drive() {
         Translation3d combined = new Translation3d();
-        Translation3d combined_non_field_oriented = new Translation3d();
 
         for (VelocityProvider p : velocity_providers) {
-            if (p.field_oriented)
-                combined = new Translation3d(
-                        combined.getX() + (p.GetEnabledAxes()[0] ? p.GetVelocity().getX() : 0),
-                        combined.getY() + (p.GetEnabledAxes()[1] ? p.GetVelocity().getY() : 0),
-                        combined.getZ() + (p.GetEnabledAxes()[2] ? p.GetVelocity().getZ() : 0));
-            else
-                combined_non_field_oriented = new Translation3d(
-                        combined.getX() + (p.GetEnabledAxes()[0] ? p.GetVelocity().getX() : 0),
-                        combined.getY() + (p.GetEnabledAxes()[1] ? p.GetVelocity().getY() : 0),
-                        combined.getZ() + (p.GetEnabledAxes()[2] ? p.GetVelocity().getZ() : 0));
+            combined = new Translation3d(
+                    combined.getX() + (p.GetEnabledAxes()[0] ? p.GetVelocity().getX() : 0),
+                    combined.getY() + (p.GetEnabledAxes()[1] ? p.GetVelocity().getY() : 0),
+                    combined.getZ() + (p.GetEnabledAxes()[2] ? p.GetVelocity().getZ() : 0));
+        }
+        double new_time = Timer.getFPGATimestamp();
+        double delta = new_time - old_time;
+        old_time = new_time;
+
+        if (x_spd < combined.getX()) {
+            x_spd = x_spd + delta * max_x_accel;
+            if (x_spd > combined.getX())
+                x_spd = combined.getX();
         }
 
-        ChassisSpeeds fieldOrientedXYSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(-combined.getX(),
-                -combined.getY(),
+        if (x_spd > combined.getX()) {
+            x_spd = x_spd - delta * max_x_accel;
+            if (x_spd < combined.getX())
+                x_spd = combined.getX();
+        }
+
+        if (y_spd < combined.getY()) {
+            y_spd = y_spd + delta * max_y_accel;
+            if (y_spd > combined.getY())
+                y_spd = combined.getY();
+        }
+
+        if (y_spd > combined.getY()) {
+            y_spd = y_spd - delta * max_y_accel;
+            if (y_spd < combined.getY())
+                y_spd = combined.getY();
+        }
+
+        ChassisSpeeds fieldOrientedXYSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(-x_spd,
+                -y_spd,
                 -combined.getZ(),
                 gyroAngle); // Gyro is upside down?
 
-        ChassisSpeeds total = new ChassisSpeeds(
-                fieldOrientedXYSpeeds.vxMetersPerSecond + combined_non_field_oriented.getX(),
-                fieldOrientedXYSpeeds.vyMetersPerSecond + combined_non_field_oriented.getY(),
-                fieldOrientedXYSpeeds.omegaRadiansPerSecond - combined_non_field_oriented.getZ());
-
-        SwerveModuleState[] states = kinematics.toSwerveModuleStates(total);
+        SwerveModuleState[] states = kinematics.toSwerveModuleStates(fieldOrientedXYSpeeds);
 
         // Set speeds
         TL.Drive(states[0].speedMetersPerSecond);
@@ -92,7 +118,8 @@ public class SwerveDrivetrain extends SubsystemBase {
         BL.Drive(states[2].speedMetersPerSecond);
         BR.Drive(states[3].speedMetersPerSecond);
 
-        if (Math.abs(total.vxMetersPerSecond + total.vyMetersPerSecond + total.omegaRadiansPerSecond) < 1e-4)
+        if (Math.abs(fieldOrientedXYSpeeds.vxMetersPerSecond) + Math.abs(fieldOrientedXYSpeeds.vyMetersPerSecond)
+                + Math.abs(fieldOrientedXYSpeeds.omegaRadiansPerSecond) < 1e-4)
             return;
         // Set angles
         TL.SetTarget(states[0].angle.getDegrees());
@@ -127,16 +154,15 @@ public class SwerveDrivetrain extends SubsystemBase {
 
     }
 
-    public void SetOdomPose(Pose2d pose, Rotation2d rot) {
+    public void SetOdomPose(Pose2d pose) {
         // pose = new Pose2d(pose.getTranslation(), rot); // We do NOT want to reset the
         // gyro angle, the NavX is more than
         // enough!
-        odometry.resetPosition(rot, positions, pose);
+        odometry.resetPosition(gyroAngle, positions, pose);
     }
 
     public Pose2d GetLocalizedPose() {
-        Pose2d pose = OdometryOutPose.transformBy(OdometryOffset);
-        SmartDashboard.putString("Robot loc", "x: " + pose.getX() + ", y: " + pose.getY());
+        Pose2d pose = OdometryOutPose;
         return pose;
     }
 
@@ -158,18 +184,11 @@ public class SwerveDrivetrain extends SubsystemBase {
     }
 
     void Display() {
-        double x_formatted = Math.abs(OdometryOutPose.getX()) > 0.001 ? Math.floor(OdometryOutPose.getX() * 1000) / 1000
-                : 0;
-        double Y_formatted = Math.abs(OdometryOutPose.getY()) > 0.001 ? Math.floor(OdometryOutPose.getY() * 1000) / 1000
-                : 0;
-
-        SmartDashboard.putString("Odom Pose", ("x: " + x_formatted + ", y: " + Y_formatted));
-
         SmartDashboard.putString("Odom Localized",
                 ("x: " + GetLocalizedPose().getX() + ", y: " + GetLocalizedPose().getY()));
 
         SmartDashboard.putNumber("Gyro angle", gyroAngle.getDegrees());
-        odom_display.setRobotPose(GetLocalizedPose());
+        odom_display.setRobotPose(new Pose2d(OdometryOutPose.getX(), OdometryOutPose.getY() + 5.548, gyroAngle));
     }
 
     @Override

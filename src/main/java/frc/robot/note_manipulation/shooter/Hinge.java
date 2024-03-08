@@ -18,7 +18,7 @@ public class Hinge extends SubsystemBase {
 
     private final double RADIANS_PER_PULSE = (2 * Math.PI) / ((226233 / 3179) * 7 * 4);
 
-    private PIDController angle_pid = new PIDController(2, 0.8, 0);
+    private PIDController angle_pid = new PIDController(2, 1.6, 0);
 
     public double MinRadians = 0;
     public double MaxRadians = 3;

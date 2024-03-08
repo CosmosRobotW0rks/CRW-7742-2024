@@ -10,6 +10,9 @@ public class NoteSystemConfiguration {
     public double ConveyorMinPower;
     public double ConveyorMaxPower;
 
+    public double ConveyorFeedforwardPower;
+    public double ConveyorFeedforwardTime;
+
     public double ConveyorReversePower;
     public double ConveyorReverseTime;
 

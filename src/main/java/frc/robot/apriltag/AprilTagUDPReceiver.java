@@ -2,6 +2,7 @@ package frc.robot.apriltag;
 
 import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -18,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.RollingAverage;
 import frc.lib.UDPReceiver;
 import frc.lib.ValueDelay;
+import frc.robot.apriltag.FieldTags.Tag;
 import frc.robot.drivetrain.SwerveDrivetrain;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -28,26 +30,31 @@ public class AprilTagUDPReceiver extends SubsystemBase {
     private ObjectMapper mapper;
     private Transform2d odometry_offset;
 
-    public RollingAverage x_damp = new RollingAverage(0.5);
-    public RollingAverage y_damp = new RollingAverage(0.5);
+    public RollingAverage x_avg = new RollingAverage(0.5);
+    public RollingAverage y_avg = new RollingAverage(0.5);
 
-    public ValueDelay x_delay = new ValueDelay(0.75);
-    public ValueDelay y_delay = new ValueDelay(0.75);
-    public ValueDelay th_delay = new ValueDelay(0.75);
+    // public ValueDelay x_delay = new ValueDelay(0.75);
+    // public ValueDelay y_delay = new ValueDelay(0.75);
+    // public ValueDelay th_delay = new ValueDelay(0.75);
 
     private double odometry_update_time;
 
     private SwerveDrivetrain drivetrain;
 
     public ArrayList<TagData> tags = new ArrayList<>();
+    public HashMap<Integer, TagData> tagsByID = new HashMap<>();
 
-    private Transform3d cam2robot = new Transform3d(new Translation3d(0, -0.45, 0), new Rotation3d());
+    FieldTags field_tags = new FieldTags();
+
+    private Transform3d cam2robot = new Transform3d(new Translation3d(0, -0.35, 0), new Rotation3d());
+
+    private boolean constant = false;
 
     public AprilTagUDPReceiver(SwerveDrivetrain drivetrain) {
         mapper = new ObjectMapper();
         this.drivetrain = drivetrain;
         try {
-            receiver = new UDPReceiver(5801, 10, 1);
+            receiver = new UDPReceiver(5801, 100, 1);
         } catch (SocketException e) {
             System.err.println("Can't bind to receiver socket!");
             return;
@@ -68,7 +75,6 @@ public class AprilTagUDPReceiver extends SubsystemBase {
         for (TagData data : tags)
             ids.add(data.id);
 
-
         return ids;
     }
 
@@ -84,54 +90,61 @@ public class AprilTagUDPReceiver extends SubsystemBase {
         return new Transform3d(translation, rotation);
     }
 
-    public Pose3d LocalizeRobot() {
-        int id = -1;
-
-        if (tags.size() > 0)
-            id = tags.get(0).id;
-
-        Pose3d tag_relative = GetPoseTagRelative(id);
-        Pose3d tag_pose = FieldTags.aprilTags.get(id);
-
-        if (tag_relative == null || tag_pose == null)
+    public Pose3d GetRobotPose() {
+        if (tags.size() == 0)
             return null;
 
-        Rotation3d rot = new Rotation3d(0, 0, drivetrain.gyroAngle.getRadians());
+        double x_avg = 0;
+        double y_avg = 0;
 
-        SmartDashboard.putString("REL", tag_relative.getX() + ", " + tag_relative.getY());
+        for (TagData data : tags) {
+            int id = data.id;
 
-        Pose3d absolute_tag_pose = tag_relative.rotateBy(rot);
-        SmartDashboard.putString("ABS", absolute_tag_pose.getX() + ", " + absolute_tag_pose.getY());
-        Transform3d field2tag = new Transform3d(new Pose3d(), tag_pose);
+            Pose3d tag_relative = GetPoseTagRelative(id);
+            Tag tag_pose = field_tags.Get(id);
 
-        return absolute_tag_pose.plus(field2tag);
+            if (tag_relative == null || tag_pose == null)
+                return null;
+
+            Rotation3d rot = new Rotation3d(0, 0, drivetrain.gyroAngle.getRadians());
+
+            Translation2d absolute_tag_pose = tag_relative.rotateBy(rot).toPose2d().getTranslation();
+
+            Translation2d field2tag = tag_pose.pose.toPose2d().getTranslation();
+
+            Pose2d real_pose = new Pose2d(absolute_tag_pose.plus(field2tag), new Rotation2d());
+
+            x_avg += real_pose.getX();
+            y_avg += real_pose.getY();
+        }
+
+        x_avg /= tags.size();
+        y_avg /= tags.size();
+
+        return new Pose3d(x_avg, y_avg, 0, new Rotation3d());
     }
 
-    void update_odometry() {
-        Pose2d odom_pose = new Pose2d(
-                new Translation2d(x_delay.GetValue(), y_delay.GetValue()), Rotation2d.fromRadians(th_delay.GetValue()));
-        Pose3d pose = LocalizeRobot();
+    public void LocalizeRobot() {
+        Pose3d pose = GetRobotPose();
 
         if (pose == null)
             return;
 
         Pose2d robot_actual_pose = pose.toPose2d();
+        SmartDashboard.putString("Localized pose",
+                "x: " + robot_actual_pose.getX() + ", y: " + robot_actual_pose.getY());
 
-        if (robot_actual_pose == null)
+        if (Double.isNaN(robot_actual_pose.getX()) || Double.isNaN(robot_actual_pose.getY())) {
+            System.out.println("Cannot localize! Pose value is NaN!");
             return;
+        }
 
-        odometry_offset = new Transform2d(odom_pose, robot_actual_pose);
-
-        // Prevent rotation from updating, NavX is more accurate than AprilTags
-        // odometry_offset = new Transform2d(odometry_offset.getTranslation(), new
-        // Rotation2d());
+        drivetrain.SetOdomPose(robot_actual_pose);
         odometry_update_time = Timer.getFPGATimestamp();
+    }
 
-        x_damp.AddSample(odometry_offset.getX());
-        y_damp.AddSample(odometry_offset.getY());
-
-        drivetrain.OdometryOffset = new Transform2d(new Translation2d(x_damp.GetAverage(), y_damp.GetAverage()),
-                odometry_offset.getRotation());
+    public void SetConstant(boolean constant) {
+        this.constant = constant;
     }
 
     public Transform2d GetOdometryOffset() {
@@ -150,36 +163,52 @@ public class AprilTagUDPReceiver extends SubsystemBase {
         return new Pose3d(translation, rotation).plus(cam2robot);
     }
 
-    public boolean Connected(){
+    public boolean Connected() {
         return !receiver.HasTimedOut();
     }
 
     void parse(String data) {
         try {
             tags = new ArrayList<>();
-            if(receiver.HasTimedOut())
+            if (receiver.HasTimedOut())
                 return;
             if (data == "")
                 return;
 
             tags = mapper.readValue(data, new TypeReference<ArrayList<TagData>>() {
+
             });
+
+            String message = "";
+            for (TagData tag : tags) {
+                tagsByID.put(tag.id, tag);
+                message += tag.id + ", ";
+            }
+
+            SmartDashboard.putString("Found tags", message);
+
         } catch (Exception e) {
             // System.err.println("Error while parsing received data!");
         }
     }
 
-    void add_pose_delay() {
-        x_delay.AddSample(drivetrain.OdometryOutPose.getX());
-        y_delay.AddSample(drivetrain.OdometryOutPose.getY());
-        th_delay.AddSample(drivetrain.OdometryOutPose.getRotation().getRadians());
-
-    }
+    /*
+     * void add_pose_delay() {
+     * x_delay.AddSample(drivetrain.OdometryOutPose.getX());
+     * y_delay.AddSample(drivetrain.OdometryOutPose.getY());
+     * th_delay.AddSample(drivetrain.OdometryOutPose.getRotation().getRadians());
+     * 
+     * }
+     */
 
     @Override
     public void periodic() {
-        add_pose_delay();
+        if (constant)
+            LocalizeRobot();
+
+        SmartDashboard.putBoolean("Using red alliance tags", field_tags.IsRedAlliance);
+        SmartDashboard.putBoolean("Constant localization", constant);
+
         parse(receiver.GetLastData());
-        update_odometry();
     }
 }
